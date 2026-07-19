@@ -316,26 +316,28 @@ tr:hover td{background:var(--green-pale);}
   <div id="backup-reminder-banner"></div>
   <div id="dash-submit-msg"></div>
 
-  <div class="card">
-    <div class="card-title">📊 আজকের সারসংক্ষেপ</div>
-    <div class="section-label" style="margin-top:0;">সদস্য ও মিল</div>
-    <div class="stats-grid three">
-      <div class="stat-card green"><div class="stat-value" id="dash-members">0</div><div class="stat-label">মোট সদস্য</div></div>
-      <div class="stat-card blue"><div class="stat-value" id="dash-meal-on">0</div><div class="stat-label">মিল অন</div></div>
-      <div class="stat-card amber"><div class="stat-value" id="dash-meal-off">0</div><div class="stat-label">মিল অফ</div></div>
+  <div class="card" onclick="openSummaryModal()" style="cursor:pointer;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div class="card-title" style="margin-bottom:0;padding-bottom:0;border-bottom:none;">📊 আজকের সারসংক্ষেপ</div>
+      <span class="badge badge-blue">বিস্তারিত ➡️</span>
     </div>
-
-    <div class="section-label">আর্থিক ও গেস্ট</div>
-    <div class="stats-grid two">
-      <div class="stat-card green"><div class="stat-value" id="dash-today-payment">৳0</div><div class="stat-label">আজকের পেমেন্ট</div></div>
-      <div class="stat-card pink"><div class="stat-value" id="dash-guest-count">0</div><div class="stat-label">মোট গেস্ট মিল</div></div>
-    </div>
-
-    <div class="section-label">আজকের বাজার প্রয়োজন</div>
-    <div class="stats-grid three" style="margin-bottom:0;">
-      <div class="stat-card blue"><div class="stat-value" id="dash-egg-members">0</div><div class="stat-label">ডিম সংখ্যা</div></div>
-      <div class="stat-card pink"><div class="stat-value" id="dash-broiler-members">0</div><div class="stat-label">ব্রয়লার সংখ্যা</div></div>
-      <div class="stat-card green"><div class="stat-value" id="dash-fish-members">0</div><div class="stat-label">মাছ সংখ্যা</div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:64px;text-align:center;background:var(--green-pale);border-radius:10px;padding:9px 4px;">
+        <div style="font-family:var(--font-display);font-weight:800;font-size:1.15rem;color:var(--green);" id="dash-quick-members">0</div>
+        <div style="font-size:0.63rem;color:var(--text-muted);font-weight:700;">সদস্য</div>
+      </div>
+      <div style="flex:1;min-width:64px;text-align:center;background:var(--blue-light);border-radius:10px;padding:9px 4px;">
+        <div style="font-family:var(--font-display);font-weight:800;font-size:1.15rem;color:var(--blue);" id="dash-quick-meal-on">0</div>
+        <div style="font-size:0.63rem;color:var(--text-muted);font-weight:700;">মিল অন</div>
+      </div>
+      <div style="flex:1;min-width:64px;text-align:center;background:var(--amber-light);border-radius:10px;padding:9px 4px;">
+        <div style="font-family:var(--font-display);font-weight:800;font-size:1.15rem;color:var(--amber);" id="dash-quick-meal-off">0</div>
+        <div style="font-size:0.63rem;color:var(--text-muted);font-weight:700;">মিল অফ</div>
+      </div>
+      <div style="flex:1;min-width:64px;text-align:center;background:var(--green-pale);border-radius:10px;padding:9px 4px;">
+        <div style="font-family:var(--font-display);font-weight:800;font-size:1.15rem;color:var(--green);" id="dash-quick-payment">৳0</div>
+        <div style="font-size:0.63rem;color:var(--text-muted);font-weight:700;">আজকের পেমেন্ট</div>
+      </div>
     </div>
   </div>
 
@@ -472,6 +474,14 @@ tr:hover td{background:var(--green-pale);}
     </div>
     <button class="btn btn-primary" onclick="saveBazar()">💾 বাজার সেভ করুন</button>
   </div>
+
+  <div class="card">
+    <div class="card-title">🥚🍗🐟 সদস্যদের দৈনিক বাজার কোটা</div>
+    <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:10px;">প্রতিটা সদস্য প্রতিদিন কয়টা ডিম/ব্রয়লার পিস/মাছ পিস খেতে চায় — এখান থেকে সেট করুন। বাজার করার আগে এই হিসাব দেখে কতটা কিনতে হবে বুঝে নিন।</p>
+    <div class="search-box"><input type="text" id="bazar-quota-search" placeholder="🔍 নাম বা রুম দিয়ে খুঁজুন..." oninput="renderBazarQuotaList()"></div>
+    <div id="bazar-quota-list"></div>
+  </div>
+
   <div class="card">
     <div class="card-title">📅 বাজারের ইতিহাস</div>
     <div class="form-row">
@@ -730,8 +740,62 @@ tr:hover td{background:var(--green-pale);}
     <div class="card-title">📋 অ্যাক্টিভিটি লগ (সাম্প্রতিক কার্যক্রম)</div>
     <div id="activity-log-list"></div>
   </div>
+
+  <div class="card" style="border:2px solid var(--red);background:var(--red-light);">
+    <div class="card-title" style="color:var(--red);border-bottom-color:#f1a8a3;">⚠️ ডেঞ্জার জোন</div>
+    <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:10px;">অ্যাপ কেমন দেখাবে বোঝার জন্য নমুনা (ডেমো) ডেটা লোড করতে পারেন — সদস্য, মিল, পেমেন্ট, বাজার সবকিছু ভরে যাবে। অথবা সব ডেটা মুছে একদম নতুন করে শুরু করতে পারেন।</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-amber" onclick="loadDemoData()">🧪 ডেমো ডেটা লোড করুন</button>
+      <button class="btn btn-danger" onclick="clearAllData()">🗑️ সব ডেটা মুছে ফেলুন</button>
+    </div>
+  </div>
 </div>
 
+</div>
+
+<div id="summary-modal" style="display:none;position:fixed;inset:0;z-index:99500;background:rgba(11,23,18,0.72);align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this) closeSummaryModal()">
+  <div style="background:#fff;border-radius:18px;max-width:420px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,0.4);padding:20px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div class="card-title" style="margin-bottom:0;padding-bottom:0;border-bottom:none;">📊 আজকের সারসংক্ষেপ (বিস্তারিত)</div>
+      <button onclick="closeSummaryModal()" style="background:var(--gray-bg);border:none;color:var(--text);width:28px;height:28px;border-radius:50%;font-size:0.9rem;cursor:pointer;flex-shrink:0;">✕</button>
+    </div>
+
+    <div class="section-label" style="margin-top:0;">সদস্য ও মিল</div>
+    <div class="stats-grid three">
+      <div class="stat-card green"><div class="stat-value" id="dash-members">0</div><div class="stat-label">মোট সদস্য</div></div>
+      <div class="stat-card blue"><div class="stat-value" id="dash-meal-on">0</div><div class="stat-label">মিল অন</div></div>
+      <div class="stat-card amber"><div class="stat-value" id="dash-meal-off">0</div><div class="stat-label">মিল অফ</div></div>
+    </div>
+
+    <div class="section-label">আর্থিক ও গেস্ট</div>
+    <div class="stats-grid two">
+      <div class="stat-card green"><div class="stat-value" id="dash-today-payment">৳0</div><div class="stat-label">আজকের পেমেন্ট</div></div>
+      <div class="stat-card pink"><div class="stat-value" id="dash-guest-count">0</div><div class="stat-label">মোট গেস্ট মিল</div></div>
+    </div>
+
+    <div class="section-label">আজকের বাজার প্রয়োজন</div>
+    <div class="stats-grid three" style="margin-bottom:0;">
+      <div class="stat-card blue"><div class="stat-value" id="dash-egg-members">0</div><div class="stat-label">ডিম সংখ্যা</div></div>
+      <div class="stat-card pink"><div class="stat-value" id="dash-broiler-members">0</div><div class="stat-label">ব্রয়লার সংখ্যা</div></div>
+      <div class="stat-card green"><div class="stat-value" id="dash-fish-members">0</div><div class="stat-label">মাছ সংখ্যা</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="confirm-modal" style="display:none;position:fixed;inset:0;z-index:100500;background:rgba(11,23,18,0.75);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;border-radius:16px;padding:22px;max-width:340px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,0.4);">
+    <div id="confirm-modal-message" style="font-size:0.88rem;color:var(--ink);line-height:1.65;margin-bottom:18px;white-space:pre-line;"></div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-outline" style="flex:1;justify-content:center;" onclick="_confirmModalResolve(false)">বাতিল</button>
+      <button class="btn btn-danger" style="flex:1;justify-content:center;" onclick="_confirmModalResolve(true)">নিশ্চিত</button>
+    </div>
+  </div>
+</div>
+
+<div id="member-profile-modal" style="display:none;position:fixed;inset:0;z-index:99000;background:rgba(11,23,18,0.72);align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this) closeMemberProfile()">
+  <div style="background:#fff;border-radius:18px;max-width:380px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,0.4);">
+    <div id="member-profile-content"></div>
+  </div>
 </div>
 
 <div id="lock-screen" style="display:none;position:fixed;inset:0;z-index:100000;background:linear-gradient(135deg,var(--ink),var(--green) 55%,var(--green-light));align-items:center;justify-content:center;flex-direction:column;padding:20px;">
@@ -749,7 +813,7 @@ tr:hover td{background:var(--green-pale);}
 // DATA
 // ============================================================
 let MEAL_RATE = 120;
-let DB = { members:[], meals:{}, payments:[], bazars:[], expenses:[], bazarSchedule:[], submittedDays:[], archivedMonths:[], fines:[], pinEnabled:false, pinHash:'', backupReminderDays:3, lastBackupAt:null, mealRate:120, activityLog:[] };
+let DB = { members:[], meals:{}, payments:[], bazars:[], expenses:[], bazarSchedule:[], submittedDays:[], archivedMonths:[], fines:[], pinEnabled:false, pinHash:'', backupReminderDays:3, lastBackupAt:null, mealRate:120, activityLog:[], dayRates:{} };
 let blSelectedMembers = []; // up to 3 for bazar list
 
 function save(){ try{ localStorage.setItem('messDB_v4', JSON.stringify(DB)); }catch(e){} }
@@ -770,6 +834,7 @@ function load(){
     if(!DB.fines) DB.fines=[];
     if(!DB.activityLog) DB.activityLog=[];
     if(!DB.backupReminderDays) DB.backupReminderDays=3;
+    if(!DB.dayRates) DB.dayRates={};
     if(DB.pinEnabled===undefined) DB.pinEnabled=false;
     if(DB.mealRate) MEAL_RATE=DB.mealRate; else DB.mealRate=MEAL_RATE;
     if(DB.notifEnabled===undefined) DB.notifEnabled=false;
@@ -809,8 +874,8 @@ function simpleHash(str){
 function enablePinLock(){
   const p1=document.getElementById('set-pin-input').value.trim();
   const p2=document.getElementById('set-pin-confirm').value.trim();
-  if(!p1||p1.length<4||p1.length>6||!/^[0-9]+$/.test(p1)){ alert('৪-৬ ডিজিটের সংখ্যার পিন দিন!'); return; }
-  if(p1!==p2){ alert('দুইটা পিন মিলছে না!'); return; }
+  if(!p1||p1.length<4||p1.length>6||!/^[0-9]+$/.test(p1)){ showAlert('৪-৬ ডিজিটের সংখ্যার পিন দিন!','red'); return; }
+  if(p1!==p2){ showAlert('দুইটা পিন মিলছে না!','red'); return; }
   DB.pinEnabled=true; DB.pinHash=simpleHash(p1); save();
   document.getElementById('set-pin-input').value='';
   document.getElementById('set-pin-confirm').value='';
@@ -818,9 +883,9 @@ function enablePinLock(){
   showAlert('পিন লক চালু হয়েছে ✅');
   renderSettingsPage();
 }
-function disablePinLock(){
+async function disablePinLock(){
   if(!DB.pinEnabled){ showAlert('পিন লক এমনিতেই বন্ধ আছে','amber'); return; }
-  if(!confirm('পিন লক বন্ধ করতে চান?')) return;
+  if(!(await showConfirm('পিন লক বন্ধ করতে চান?'))) return;
   DB.pinEnabled=false; DB.pinHash=''; save();
   logActivity('🔓 পিন লক বন্ধ করা হয়েছে');
   showAlert('পিন লক বন্ধ হয়েছে','amber');
@@ -878,7 +943,7 @@ function updateBackupReminderDays(){
 // ============================================================
 function updateMealRate(){
   const v=parseFloat(document.getElementById('set-meal-rate').value);
-  if(!v||v<=0){ alert('সঠিক রেট দিন!'); return; }
+  if(!v||v<=0){ showAlert('সঠিক রেট দিন!','red'); return; }
   MEAL_RATE=v; DB.mealRate=v; save();
   logActivity('🍽️ মিল রেট পরিবর্তন করা হয়েছে: ৳'+v);
   showAlert('মিল রেট আপডেট হয়েছে ✅');
@@ -890,7 +955,7 @@ function updateMealRate(){
 // ============================================================
 function updateMonthlyBudget(){
   const v=parseFloat(document.getElementById('set-monthly-budget').value);
-  if(!v||v<=0){ alert('সঠিক বাজেট দিন!'); return; }
+  if(!v||v<=0){ showAlert('সঠিক বাজেট দিন!','red'); return; }
   DB.monthlyBudget=v; save();
   logActivity('🎯 মাসিক বাজেট সেট করা হয়েছে: ৳'+v);
   showAlert('বাজেট সেভ হয়েছে ✅');
@@ -952,11 +1017,107 @@ function renderSettingsPage(){
 }
 
 // ============================================================
+// DEMO DATA / CLEAR ALL DATA
+// ============================================================
+async function clearAllData(){
+  if(!(await showConfirm('⚠️ এটা সব সদস্য, মিল, পেমেন্ট, বাজার, খরচ, জরিমানা ও ইতিহাস স্থায়ীভাবে মুছে ফেলবে (সেটিংস যেমন পিন/বাজেট/থিম বাদে)। নিশ্চিত?'))) return;
+  if(!(await showConfirm('চূড়ান্ত নিশ্চিতকরণ: সব ডেটা মুছে ফেলতে চান? এই কাজ ফিরিয়ে আনা যাবে না।'))) return;
+  DB.members=[]; DB.meals={}; DB.payments=[]; DB.bazars=[]; DB.expenses=[];
+  DB.bazarSchedule=[]; DB.submittedDays=[]; DB.fines=[]; DB.dayRates={};
+  DB.archivedMonths=[]; DB.activityLog=[];
+  save();
+  dashDate=todayStr();
+  document.getElementById('dash-date-input').value=dashDate;
+  populatePaySelect();
+  renderMembersByFloor();
+  renderDashboard();
+  renderSettingsPage();
+  showAlert('🗑️ সব ডেটা মুছে ফেলা হয়েছে', 'amber');
+}
+
+async function loadDemoData(){
+  const hasData=(DB.members&&DB.members.length)||(DB.payments&&DB.payments.length);
+  if(hasData && !(await showConfirm('⚠️ ডেমো ডেটা লোড করলে বর্তমান সব সদস্য/হিসাব মুছে নমুনা ডেটা দিয়ে প্রতিস্থাপিত হবে। নিশ্চিত?'))) return;
+
+  const today=todayStr();
+  const names=[
+    {name:'কবির হোসেন',room:'201',phone:'01711000001'},
+    {name:'রাকিব আহমেদ',room:'203',phone:'01711000002'},
+    {name:'সাজিদুল ইসলাম',room:'301',phone:'01711000003'},
+    {name:'তানভীর হাসান',room:'304',phone:'01711000004'},
+    {name:'ফাহিম রহমান',room:'401',phone:'01711000005'},
+    {name:'নাফিস চৌধুরী',room:'404',phone:'01711000006'},
+    {name:'রাসেল মিয়া',room:'501',phone:'01711000007'},
+    {name:'শাকিল খান',room:'503',phone:'01711000008'}
+  ];
+
+  DB.members=[]; DB.meals={}; DB.payments=[]; DB.bazars=[]; DB.expenses=[];
+  DB.bazarSchedule=[]; DB.submittedDays=[]; DB.fines=[]; DB.dayRates={};
+
+  names.forEach((n,i)=>{
+    const joinDate=addDays(today,-20-i);
+    const id=Date.now()+i;
+    DB.members.push({
+      id, name:n.name, room:n.room, phone:n.phone,
+      emergency:i%2===0?'পরিবার: 01911'+String(100000+i):'',
+      photo:null, active:true, floor:getFloor(n.room), joinDate,
+      eggQty:i%3===0?0:1, broilerQty:1, fishQty:i%2===0?1:0
+    });
+  });
+
+  // গত ১০ দিনের মিল সাবমিট + অন/অফ/গেস্ট
+  for(let d=9; d>=0; d--){
+    const date=addDays(today,-d);
+    DB.submittedDays.push(date);
+    DB.dayRates[date]=MEAL_RATE;
+    DB.meals[date]={};
+    DB.members.forEach((m,idx)=>{
+      const roll=(d+idx)%7;
+      let status='on';
+      if(roll===0) status='off';
+      else if(roll===3) status='guest';
+      DB.meals[date][m.id]=status;
+    });
+  }
+
+  // পেমেন্ট
+  DB.members.forEach((m,idx)=>{
+    DB.payments.push({id:Date.now()+100+idx, memberId:m.id, memberName:m.name, room:m.room, amount:1500+(idx%3)*500, date:addDays(today,-(6+idx)), note:'মাসিক পেমেন্ট'});
+  });
+
+  // বাজার এন্ট্রি
+  [1,3,5,7,9].forEach((d,i)=>{
+    DB.bazars.push({id:Date.now()+200+i, date:addDays(today,-d), amount:800+i*150, note:['তরকারি ও মাছ','ডিম ও মুরগি','চাল ও ডাল','সবজি বাজার','মাংস ও মসলা'][i], fileName:null, fileType:null, fileData:null});
+  });
+
+  // খরচ
+  DB.expenses.push({id:Date.now()+300, type:'গ্যাস', amount:1200, date:addDays(today,-15), desc:'মাসিক গ্যাস বিল'});
+  DB.expenses.push({id:Date.now()+301, type:'চাল', amount:2600, date:addDays(today,-12), desc:'৫০ কেজি চাল'});
+  DB.expenses.push({id:Date.now()+302, type:'রিচার্জ', amount:200, date:addDays(today,-4), desc:'ওয়াইফাই রিচার্জ'});
+
+  // বাজার শিডিউল
+  DB.bazarSchedule.push({id:Date.now()+400, date:addDays(today,1), members:[{id:DB.members[0].id,name:DB.members[0].name,room:DB.members[0].room},{id:DB.members[1].id,name:DB.members[1].name,room:DB.members[1].room}], note:'সাপ্তাহিক বাজার'});
+
+  // জরিমানা
+  DB.fines.push({id:Date.now()+500, memberId:DB.members[2].id, memberName:DB.members[2].name, room:DB.members[2].room, amount:100, date:addDays(today,-3), reason:'দেরিতে পেমেন্ট', isCustom:false});
+
+  save();
+  dashDate=today;
+  document.getElementById('dash-date-input').value=dashDate;
+  populatePaySelect();
+  renderMembersByFloor();
+  renderDashboard();
+  renderSettingsPage();
+  logActivity('🧪 ডেমো ডেটা লোড করা হয়েছে');
+  showAlert('🧪 ডেমো ডেটা লোড করা হয়েছে ✅', 'green');
+}
+
+// ============================================================
 // CSV EXPORT (REPORT)
 // ============================================================
 function exportReportCSV(){
   const month=document.getElementById('report-month').value;
-  if(!month){ alert('আগে মাস বেছে রিপোর্ট তৈরি করুন!'); return; }
+  if(!month){ showAlert('আগে মাস বেছে রিপোর্ট তৈরি করুন!','red'); return; }
   const submittedInMonth=(DB.submittedDays||[]).filter(d=>d.startsWith(month));
   let rows=[['নাম','রুম','পেমেন্ট','মিল অন','গেস্ট মিল','ব্যালেন্স']];
   DB.members.forEach(m=>{
@@ -984,9 +1145,9 @@ function deriveMonthLabel(snapshot){
   return first.slice(0,7);
 }
 
-function startNewMonth(){
-  if(!confirm('⚠️ আপনি কি নিশ্চিত? নতুন মাস শুরু করলে বর্তমান মাসের সদস্য, পেমেন্ট, মিল, বাজার ও খরচ — সব "ইতিহাস" এ সংরক্ষিত হয়ে যাবে এবং একদম নতুন/ফাঁকা মাস শুরু হবে। পরের মাসের সাথে আগের মাসের কোনো হিসাব মিলবে না।')) return;
-  if(!confirm('চূড়ান্ত নিশ্চিতকরণ: নতুন মাস শুরু করতে চান?')) return;
+async function startNewMonth(){
+  if(!(await showConfirm('⚠️ আপনি কি নিশ্চিত? নতুন মাস শুরু করলে বর্তমান মাসের সদস্য, পেমেন্ট, মিল, বাজার ও খরচ — সব "ইতিহাস" এ সংরক্ষিত হয়ে যাবে এবং একদম নতুন/ফাঁকা মাস শুরু হবে। পরের মাসের সাথে আগের মাসের কোনো হিসাব মিলবে না।'))) return;
+  if(!(await showConfirm('চূড়ান্ত নিশ্চিতকরণ: নতুন মাস শুরু করতে চান?'))) return;
 
   const hasAnyData = (DB.members&&DB.members.length) || (DB.payments&&DB.payments.length) ||
                       (DB.bazars&&DB.bazars.length) || (DB.expenses&&DB.expenses.length) ||
@@ -1000,7 +1161,8 @@ function startNewMonth(){
       expenses: DB.expenses||[],
       bazarSchedule: DB.bazarSchedule||[],
       submittedDays: DB.submittedDays||[],
-      fines: DB.fines||[]
+      fines: DB.fines||[],
+      dayRates: DB.dayRates||{}
     };
     const monthKey = deriveMonthLabel(snapshot);
     if(!DB.archivedMonths) DB.archivedMonths=[];
@@ -1012,7 +1174,7 @@ function startNewMonth(){
     });
   }
 
-  DB.members=[]; DB.meals={}; DB.payments=[]; DB.bazars=[]; DB.expenses=[]; DB.bazarSchedule=[]; DB.submittedDays=[]; DB.fines=[];
+  DB.members=[]; DB.meals={}; DB.payments=[]; DB.bazars=[]; DB.expenses=[]; DB.bazarSchedule=[]; DB.submittedDays=[]; DB.fines=[]; DB.dayRates={};
   save();
   logActivity('🗓️ নতুন মাস শুরু করা হয়েছে');
   dashDate = todayStr();
@@ -1098,17 +1260,22 @@ function setMealStatus(date, memberId, status){
   save();
 }
 
+function getRateForDate(date){
+  if(DB.dayRates && DB.dayRates[date]!==undefined) return DB.dayRates[date];
+  return MEAL_RATE;
+}
 function getMemberBalance(memberId){
   const paid = DB.payments.filter(p=>p.memberId===memberId).reduce((s,p)=>s+(p.amount||0),0);
   let charges = 0;
   
-  // টাকা শুধু সাবমিট করা দিনগুলোর জন্যই কাটবে
+  // টাকা শুধু সাবমিট করা দিনগুলোর জন্যই কাটবে, সেদিনের রেট অনুযায়ী
   (DB.submittedDays||[]).forEach(date=>{
     const st = getMealStatus(date, memberId);
+    const rate = getRateForDate(date);
     if(st==='on') {
-      charges += MEAL_RATE; // নিজের ১টা মিল = ১২০ টাকা
+      charges += rate; // নিজের ১টা মিল
     } else if(st==='guest') {
-      charges += (MEAL_RATE * 2); // নিজের মিল + গেস্ট মিল = ২৪০ টাকা
+      charges += (rate * 2); // নিজের মিল + গেস্ট মিল
     }
   });
   return paid - charges;
@@ -1131,6 +1298,7 @@ function showPage(name){
     populatePaySelect(); 
     filterPayments(); 
   }
+  if(name==='bazar'){ renderBazarQuotaList(); }
   if(name==='bazarlist'){ filterBazarSchedule(); }
   if(name==='report'){ document.getElementById('report-month').value=thisMonth(); }
   if(name==='chalaan'){ document.getElementById('chalaan-month').value=thisMonth(); }
@@ -1181,7 +1349,7 @@ function syncMealChartDate(){
 }
 
 function submitDay(){
-  if(!dashDate){ alert('তারিখ সেট করুন!'); return; }
+  if(!dashDate){ showAlert('তারিখ সেট করুন!','red'); return; }
   if(!DB.submittedDays) DB.submittedDays=[];
   if(DB.submittedDays.includes(dashDate)){
     document.getElementById('dash-submit-msg').innerHTML=`<div class="alert alert-amber">⚠️ ${fmtDate(dashDate)} ইতিমধ্যে সাবমিট হয়েছে</div>`;
@@ -1189,13 +1357,15 @@ function submitDay(){
   }
   
   DB.submittedDays.push(dashDate);
+  if(!DB.dayRates) DB.dayRates={};
+  DB.dayRates[dashDate]=MEAL_RATE;
   save();
   logActivity(`✅ দিন সাবমিট করা হয়েছে: ${fmtDate(dashDate)}`);
   renderDashboard();
 }
 
-function deleteDay(){
-  if(!dashDate){ alert('তারিখ সেট করুন!'); return; }
+async function deleteDay(){
+  if(!dashDate){ showAlert('তারিখ সেট করুন!','red'); return; }
   if(!DB.submittedDays) DB.submittedDays=[];
 
   const hasMealSubmit = DB.submittedDays.includes(dashDate);
@@ -1207,7 +1377,7 @@ function deleteDay(){
 
   const totalItems = (hasMealSubmit?1:0) + bazarCount + expenseCount + paymentCount + fineCount + (hasMealData?1:0);
   if(totalItems === 0){
-    alert(`⚠️ ${fmtDate(dashDate)} তারিখে কোনো হিসাব নেই, ডিলিট করার কিছু নেই।`);
+    showAlert(`⚠️ ${fmtDate(dashDate)} তারিখে কোনো হিসাব নেই, ডিলিট করার কিছু নেই।`,'red');
     return;
   }
 
@@ -1219,7 +1389,7 @@ function deleteDay(){
   if(paymentCount) itemList += `\n💵 পেমেন্ট: ${paymentCount}টি এন্ট্রি`;
   if(fineCount) itemList += `\n⚠️ জরিমানা: ${fineCount}টি এন্ট্রি`;
 
-  if(!confirm(`⚠️ সতর্কতা!\n\n${fmtDate(dashDate)} তারিখের নিচের সব হিসাব স্থায়ীভাবে মুছে যাবে:${itemList}\n\nনিশ্চিত করুন?`)) return;
+  if(!(await showConfirm(`⚠️ সতর্কতা!\n\n${fmtDate(dashDate)} তারিখের নিচের সব হিসাব স্থায়ীভাবে মুছে যাবে:${itemList}\n\nনিশ্চিত করুন?`))) return;
 
   DB.submittedDays = DB.submittedDays.filter(d => d !== dashDate);
   DB.bazars = (DB.bazars||[]).filter(b => b.date !== dashDate);
@@ -1227,6 +1397,7 @@ function deleteDay(){
   DB.payments = (DB.payments||[]).filter(p => p.date !== dashDate);
   DB.fines = (DB.fines||[]).filter(f => f.date !== dashDate);
   if(DB.meals && DB.meals[dashDate]) delete DB.meals[dashDate];
+  if(DB.dayRates && DB.dayRates[dashDate]!==undefined) delete DB.dayRates[dashDate];
 
   save();
   logActivity(`🗑️ দিনের হিসাব ডিলিট করা হয়েছে: ${fmtDate(dashDate)}`);
@@ -1276,6 +1447,11 @@ function renderDashboard(){
 
   const todayPay=DB.payments.filter(p=>p.date===dashDate).reduce((s,p)=>s+(p.amount||0),0);
   document.getElementById('dash-today-payment').textContent='৳'+todayPay;
+
+  const qm=document.getElementById('dash-quick-members'); if(qm) qm.textContent=totalMembers;
+  const qon=document.getElementById('dash-quick-meal-on'); if(qon) qon.textContent=mealOnCount;
+  const qoff=document.getElementById('dash-quick-meal-off'); if(qoff) qoff.textContent=mealOffCount;
+  const qpay=document.getElementById('dash-quick-payment'); if(qpay) qpay.textContent='৳'+todayPay;
 
   let eggCount=0, broilerCount=0, fishCount=0;
   if((DB.submittedDays||[]).includes(dashDate)){
@@ -1378,15 +1554,15 @@ function copyDueList(){
 // ============================================================
 // MEMBERS
 // ============================================================
-function addMember(){
+async function addMember(){
   const name=document.getElementById('m-name').value.trim();
   const room=document.getElementById('m-room').value.trim();
   const phone=document.getElementById('m-phone').value.trim();
   const emergency=(document.getElementById('m-emergency')||{value:''}).value.trim();
   const photoInput=document.getElementById('m-photo');
-  if(!name||!room){ alert('নাম এবং রুম নম্বর দিন!'); return; }
+  if(!name||!room){ showAlert('নাম এবং রুম নম্বর দিন!','red'); return; }
   if(DB.members.some(m=>m.room===room && m.active!==false)){
-    if(!confirm(`⚠️ রুম ${room} এ ইতিমধ্যে একজন সদস্য আছে। তবুও যোগ করবেন?`)) return;
+    if(!(await showConfirm(`⚠️ রুম ${room} এ ইতিমধ্যে একজন সদস্য আছে। তবুও যোগ করবেন?`))) return;
   }
   const joinDate=dashDate; 
   const floor=getFloor(room);
@@ -1426,8 +1602,36 @@ function setMemberQty(id, field, value){
   m[field]=v;
   save();
   renderDashboard();
+  if(document.getElementById('bazar-quota-list')) renderBazarQuotaList();
   const label = field==='eggQty'?'ডিম':(field==='broilerQty'?'ব্রয়লার':'মাছ');
   showAlert(`${m.name} — ${label}: ${v}`, 'green');
+}
+
+function renderBazarQuotaList(){
+  const el=document.getElementById('bazar-quota-list');
+  if(!el) return;
+  const q=(document.getElementById('bazar-quota-search')||{value:''}).value.toLowerCase();
+  let list=DB.members.filter(m=>m.active!==false && (m.name.toLowerCase().includes(q)||m.room.includes(q)));
+  list.sort((a,b)=>parseInt(a.room)-parseInt(b.room));
+  if(!list.length){ el.innerHTML='<div class="empty-state"><div class="icon">👥</div><p>কোনো সদস্য নেই</p></div>'; return; }
+  el.innerHTML=list.map(m=>{
+    const eggQty=m.eggQty||0, broilerQty=m.broilerQty||0, fishQty=m.fishQty||0;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--gray-border);border-radius:8px;margin-bottom:6px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:110px;"><strong style="font-size:0.86rem;">${m.name}</strong><div style="font-size:0.7rem;color:var(--text-muted);">রুম ${m.room}</div></div>
+      <div style="display:flex;align-items:center;gap:5px;">
+        <span style="font-size:0.75rem;font-weight:700;color:var(--blue);">🥚</span>
+        <input type="number" min="0" step="1" value="${eggQty}" style="width:52px;padding:4px 6px;font-size:0.78rem;border-color:var(--blue);" onchange="setMemberQty(${m.id},'eggQty',this.value)">
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;">
+        <span style="font-size:0.75rem;font-weight:700;color:var(--pink);">🍗</span>
+        <input type="number" min="0" step="1" value="${broilerQty}" style="width:52px;padding:4px 6px;font-size:0.78rem;border-color:var(--pink);" onchange="setMemberQty(${m.id},'broilerQty',this.value)">
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;">
+        <span style="font-size:0.75rem;font-weight:700;color:var(--green);">🐟</span>
+        <input type="number" min="0" step="1" value="${fishQty}" style="width:52px;padding:4px 6px;font-size:0.78rem;border-color:var(--green);" onchange="setMemberQty(${m.id},'fishQty',this.value)">
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function renderMembersByFloor(){
@@ -1445,30 +1649,13 @@ function renderMembersByFloor(){
     html+=`<div class="floor-section"><div class="floor-header"><span>${floorBn(f)}</span><span>${fm.length} জন</span></div><div class="floor-body">`;
     fm.forEach(m=>{
       const bal=getMemberBalance(m.id);
-      const eggQty=m.eggQty||0;
-      const broilerQty=m.broilerQty||0;
-      const fishQty=m.fishQty||0;
 
       const isInactive=m.active===false;
-      const avatarHtml=m.photo?`<img src="${m.photo}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;box-shadow:0 2px 6px rgba(11,107,74,0.3);">`:`<div class="member-avatar">${m.name.charAt(0)}</div>`;
+      const avatarHtml=m.photo?`<img src="${m.photo}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;flex-shrink:0;box-shadow:0 2px 6px rgba(11,107,74,0.3);cursor:pointer;" onclick="openMemberProfile(${m.id})">`:`<div class="member-avatar" style="width:52px;height:52px;font-size:1.15rem;cursor:pointer;" onclick="openMemberProfile(${m.id})">${m.name.charAt(0)}</div>`;
 
       html+=`<div class="member-item" style="${isInactive?'opacity:0.6;':''}">${avatarHtml}
-        <div class="member-info"><div class="member-name">${m.name}<span class="floor-tag">${floorBn(f)}</span>${isInactive?'<span class="badge badge-amber" style="margin-left:4px;">মেস ছেড়েছেন</span>':''}</div>
+        <div class="member-info"><div class="member-name" style="cursor:pointer;" onclick="openMemberProfile(${m.id})">${m.name}<span class="floor-tag">${floorBn(f)}</span>${isInactive?'<span class="badge badge-amber" style="margin-left:4px;">মেস ছেড়েছেন</span>':''}</div>
         <div class="member-meta">রুম ${m.room} · ${m.phone||'নং নেই'} · যোগদান: ${fmtDate(m.joinDate)}${m.emergency?` · ইমার্জেন্সি: ${m.emergency}`:''}</div>
-        <div style="display:flex;align-items:center;gap:10px;margin-top:6px;flex-wrap:wrap;">
-          <div style="display:flex;align-items:center;gap:5px;">
-            <span style="font-size:0.75rem;font-weight:700;color:var(--blue);">🥚 ডিম</span>
-            <input type="number" min="0" step="1" value="${eggQty}" style="width:56px;padding:4px 6px;font-size:0.78rem;border-color:var(--blue);" onchange="setMemberQty(${m.id},'eggQty',this.value)">
-          </div>
-          <div style="display:flex;align-items:center;gap:5px;">
-            <span style="font-size:0.75rem;font-weight:700;color:var(--pink);">🍗 ব্রয়লার</span>
-            <input type="number" min="0" step="1" value="${broilerQty}" style="width:56px;padding:4px 6px;font-size:0.78rem;border-color:var(--pink);" onchange="setMemberQty(${m.id},'broilerQty',this.value)">
-          </div>
-          <div style="display:flex;align-items:center;gap:5px;">
-            <span style="font-size:0.75rem;font-weight:700;color:var(--green);">🐟 মাছ</span>
-            <input type="number" min="0" step="1" value="${fishQty}" style="width:56px;padding:4px 6px;font-size:0.78rem;border-color:var(--green);" onchange="setMemberQty(${m.id},'fishQty',this.value)">
-          </div>
-        </div>
         </div>
         <div><div class="member-balance ${bal>=0?'balance-pos':'balance-neg'}">${fmtMoney(bal)}</div>
         ${isInactive?`<button class="btn btn-outline btn-sm" style="margin-top:3px" onclick="reactivateMember(${m.id})">↩️</button>`:`<button class="btn btn-amber btn-sm" style="margin-top:3px" onclick="leaveMember(${m.id})">🚪</button>`}
@@ -1480,10 +1667,10 @@ function renderMembersByFloor(){
   document.getElementById('member-list-by-floor').innerHTML=html||'<div class="empty-state"><div class="icon">👥</div><p>কোনো সদস্য নেই</p></div>';
 }
 
-function leaveMember(id){
+async function leaveMember(id){
   const m=DB.members.find(x=>x.id===id);
   if(!m) return;
-  if(!confirm(m.name+' — মেস ছেড়ে দিয়েছেন হিসেবে চিহ্নিত করবেন? হিসাব ইতিহাসে থেকে যাবে, শুধু নতুন এন্ট্রি থেকে বাদ পড়বেন।')) return;
+  if(!(await showConfirm(m.name+' — মেস ছেড়ে দিয়েছেন হিসেবে চিহ্নিত করবেন? হিসাব ইতিহাসে থেকে যাবে, শুধু নতুন এন্ট্রি থেকে বাদ পড়বেন।'))) return;
   m.active=false;
   m.leftDate=dashDate;
   save();
@@ -1505,12 +1692,89 @@ function reactivateMember(id){
   showAlert(m.name+' কে পুনরায় সক্রিয় করা হয়েছে ✅');
 }
 
-function deleteMember(id){
-  if(!confirm('এটা স্থায়ীভাবে মুছে ফেলবে (হিস্ট্রিসহ)। বদলে "মেস ছাড়লেন" বাটন ব্যবহার করলে হিস্ট্রি থেকে যায়। তবুও স্থায়ীভাবে মুছবেন?')) return;
+async function deleteMember(id){
+  if(!(await showConfirm('এটা স্থায়ীভাবে মুছে ফেলবে (হিস্ট্রিসহ)। বদলে "মেস ছাড়লেন" বাটন ব্যবহার করলে হিস্ট্রি থেকে যায়। তবুও স্থায়ীভাবে মুছবেন?'))) return;
   const m=DB.members.find(x=>x.id===id);
   DB.members=DB.members.filter(m=>m.id!==id);
   save(); renderMembersByFloor(); populatePaySelect();
   if(m) logActivity(`🗑️ সদস্য মুছে ফেলা হয়েছে: ${m.name} (রুম ${m.room})`);
+  closeMemberProfile();
+}
+
+// ============================================================
+// MEMBER PROFILE POPUP
+// ============================================================
+function openMemberProfile(id){
+  const m=DB.members.find(x=>x.id===id);
+  if(!m) return;
+  const modal=document.getElementById('member-profile-modal');
+  const content=document.getElementById('member-profile-content');
+  if(!modal||!content) return;
+
+  const isInactive=m.active===false;
+  const bal=getMemberBalance(m.id);
+  const month=thisMonth();
+  const monthPaid=DB.payments.filter(p=>p.memberId===m.id&&p.date&&p.date.startsWith(month)).reduce((s,p)=>s+(p.amount||0),0);
+  const monthFines=(DB.fines||[]).filter(f=>f.memberId===m.id&&f.date&&f.date.startsWith(month)).reduce((s,f)=>s+(f.amount||0),0);
+  const submittedInMonth=(DB.submittedDays||[]).filter(d=>d.startsWith(month));
+  let onC=0,offC=0,guestC=0;
+  submittedInMonth.forEach(date=>{
+    const st=getMealStatus(date,m.id);
+    if(st==='on') onC++; else if(st==='off') offC++; else if(st==='guest'){onC++;guestC++;}
+  });
+
+  const avatarBig=m.photo
+    ?`<img src="${m.photo}" style="width:96px;height:96px;border-radius:50%;object-fit:cover;box-shadow:0 4px 14px rgba(0,0,0,0.25);">`
+    :`<div style="width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green-light));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:2rem;font-family:var(--font-display);box-shadow:0 4px 14px rgba(0,0,0,0.25);">${m.name.charAt(0)}</div>`;
+
+  content.innerHTML=`
+    <div style="background:linear-gradient(135deg,var(--ink),var(--green) 60%,var(--green-light));border-radius:18px 18px 0 0;padding:22px 20px 18px;display:flex;flex-direction:column;align-items:center;position:relative;">
+      <button onclick="closeMemberProfile()" style="position:absolute;top:10px;right:12px;background:rgba(255,255,255,0.18);border:none;color:#fff;width:28px;height:28px;border-radius:50%;font-size:0.9rem;cursor:pointer;">✕</button>
+      ${avatarBig}
+      <div style="color:#fff;font-family:var(--font-display);font-weight:700;font-size:1.1rem;margin-top:10px;text-align:center;">${m.name}</div>
+      <div style="color:rgba(255,255,255,0.85);font-size:0.78rem;margin-top:2px;">রুম ${m.room} · ${floorBn(m.floor||getFloor(m.room))}${isInactive?' · <span style="color:var(--gold);font-weight:700;">মেস ছেড়েছেন</span>':''}</div>
+    </div>
+    <div style="padding:18px 20px;">
+      <div class="stats-grid two" style="margin-bottom:12px;">
+        <div class="stat-card ${bal>=0?'green':'red'}"><div class="stat-value">${fmtMoney(bal)}</div><div class="stat-label">সর্বমোট ব্যালেন্স</div></div>
+        <div class="stat-card blue"><div class="stat-value">৳${monthPaid}</div><div class="stat-label">এই মাসের পেমেন্ট</div></div>
+      </div>
+      <div class="stats-grid three" style="margin-bottom:14px;">
+        <div class="stat-card green"><div class="stat-value">${onC}</div><div class="stat-label">মিল অন</div></div>
+        <div class="stat-card amber"><div class="stat-value">${offC}</div><div class="stat-label">মিল অফ</div></div>
+        <div class="stat-card pink"><div class="stat-value">${guestC}</div><div class="stat-label">গেস্ট মিল</div></div>
+      </div>
+      ${monthFines>0?`<div class="alert alert-red" style="margin-bottom:12px;">⚠️ এই মাসের জরিমানা: ৳${monthFines}</div>`:''}
+      <div class="section-label">যোগাযোগ ও তথ্য</div>
+      <div style="font-size:0.85rem;line-height:1.9;margin-bottom:14px;">
+        <div>📱 মোবাইল: <strong>${m.phone||'নেই'}</strong>${m.phone?` <a href="https://wa.me/88${m.phone.replace(/[^0-9]/g,'')}" target="_blank" style="color:#25D366;font-weight:700;">(WhatsApp)</a>`:''}</div>
+        <div>🆘 ইমার্জেন্সি: <strong>${m.emergency||'দেওয়া নেই'}</strong></div>
+        <div>📅 যোগদান: <strong>${fmtDate(m.joinDate)}</strong></div>
+        ${m.leftDate?`<div>🚪 মেস ছেড়েছেন: <strong>${fmtDate(m.leftDate)}</strong></div>`:''}
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        ${isInactive
+          ?`<button class="btn btn-outline btn-sm" onclick="reactivateMember(${m.id})">↩️ সক্রিয় করুন</button>`
+          :`<button class="btn btn-amber btn-sm" onclick="leaveMember(${m.id}).then(()=>openMemberProfile(${m.id}))">🚪 মেস ছাড়লেন</button>`}
+        <button class="btn btn-danger btn-sm" onclick="deleteMember(${m.id})">🗑️ মুছে ফেলুন</button>
+        <button class="btn btn-outline btn-sm" onclick="closeMemberProfile()">বন্ধ করুন</button>
+      </div>
+    </div>`;
+  modal.style.display='flex';
+}
+
+function closeMemberProfile(){
+  const modal=document.getElementById('member-profile-modal');
+  if(modal) modal.style.display='none';
+}
+
+function openSummaryModal(){
+  const modal=document.getElementById('summary-modal');
+  if(modal) modal.style.display='flex';
+}
+function closeSummaryModal(){
+  const modal=document.getElementById('summary-modal');
+  if(modal) modal.style.display='none';
 }
 
 function renderBalanceByFloor(){
@@ -1549,6 +1813,8 @@ function submitMealChart(){
     return;
   }
   DB.submittedDays.push(dashDate);
+  if(!DB.dayRates) DB.dayRates={};
+  DB.dayRates[dashDate]=MEAL_RATE;
   save();
   showAlert(`${fmtDate(dashDate)} সাবমিট হয়েছে ✅`);
   renderMealManage();
@@ -1574,7 +1840,7 @@ function renderMealManage(){
       if(st==='notjoined'){
         html+=`<div style="display:flex;align-items:center;gap:8px;padding:8px 11px;border:1.5px dashed var(--gray-border);border-radius:8px;margin-bottom:5px;background:#f9fafb;opacity:0.7;">
         <div style="flex:1;"><div style="font-weight:700;font-size:0.86rem;">${m.name}</div>
-        <div style="font-size:0.7rem;color:var(--text-muted);...roomId} · এই তারিখে এখনও যোগ দেননি (যোগদান: ${fmtDate(m.joinDate)})</div></div>
+        <div style="font-size:0.7rem;color:var(--text-muted);">রুম ${m.room} · এই তারিখে এখনও যোগ দেননি (যোগদান: ${fmtDate(m.joinDate)})</div></div>
       </div>`;
         return;
       }
@@ -1584,7 +1850,7 @@ function renderMealManage(){
       const mBal=getMemberBalance(m.id);
       html+=`<div style="display:flex;align-items:center;gap:8px;padding:8px 11px;border:1.5px solid var(--gray-border);border-radius:8px;margin-bottom:5px;background:${bg}">
         <div style="flex:1;"><div style="font-weight:700;font-size:0.86rem;">${m.name}</div>
-        <div style="font-size:0.7rem;color:var(--text-muted);_id">রুম ${m.room}</div></div>
+        <div style="font-size:0.7rem;color:var(--text-muted);">রুম ${m.room}</div></div>
         <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;">
           <button class="btn btn-sm ${isOn?'btn-primary':'btn-outline'}" onclick="setMeal('${date}',${m.id},'on')">✅ অন</button>
           <button class="btn btn-sm ${isOff?'btn-danger':'btn-outline'}" style="${isOff?'':'border-color:var(--red);color:var(--red);'}" onclick="setMeal('${date}',${m.id},'off')">❌ অফ</button>
@@ -1606,7 +1872,7 @@ function setMeal(date,memberId,status){
 
 function renderMealChart(){
   const month=document.getElementById('chart-month').value;
-  if(!month){ alert('মাস বেছে নিন!'); return; }
+  if(!month){ showAlert('মাস বেছে নিন!','red'); return; }
   const q=(document.getElementById('meal-chart-search')||{value:''}).value.toLowerCase();
   const days=getDaysInMonth(month);
   const [yr,mo]=month.split('-');
@@ -1682,8 +1948,8 @@ function addPayment(){
   const amount=parseFloat(document.getElementById('pay-amount').value);
   const date=document.getElementById('pay-date').value;
   const note=document.getElementById('pay-note').value;
-  if(!memberId){ alert('সদস্য বেছে নিন!'); return; }
-  if(!amount||!date){ alert('পরিমাণ ও তারিখ দিন!'); return; }
+  if(!memberId){ showAlert('সদস্য বেছে নিন!','red'); return; }
+  if(!amount||!date){ showAlert('পরিমাণ ও তারিখ দিন!','red'); return; }
   const member=DB.members.find(m=>m.id===memberId);
   DB.payments.push({id:Date.now(),memberId,memberName:member.name,room:member.room,amount,date,note});
   save();
@@ -1717,7 +1983,7 @@ function filterPayments(){
     </tr>`).join('')}</tbody></table></div>
     <div class="total-row" style="margin-top:7px"><span>মোট:</span><span>${fmtMoney(total)}</span></div>`;
 }
-function deletePayment(id){ if(!confirm('মুছবেন?')) return; const p=DB.payments.find(x=>x.id===id); DB.payments=DB.payments.filter(p=>p.id!==id); save(); filterPayments(); if(p) logActivity(`🗑️ পেমেন্ট মুছে ফেলা হয়েছে: ${p.memberName} — ৳${p.amount}`); }
+async function deletePayment(id){ if(!(await showConfirm('মুছবেন?'))) return; const p=DB.payments.find(x=>x.id===id); DB.payments=DB.payments.filter(p=>p.id!==id); save(); filterPayments(); if(p) logActivity(`🗑️ পেমেন্ট মুছে ফেলা হয়েছে: ${p.memberName} — ৳${p.amount}`); }
 
 function printReceipt(id){
   const p=DB.payments.find(x=>x.id===id);
@@ -1725,7 +1991,7 @@ function printReceipt(id){
   const logoImg=document.querySelector('.header img');
   const logoSrc=logoImg?logoImg.src:'';
   const w=window.open('','_blank','width=420,height=600');
-  if(!w){ alert('পপ-আপ ব্লক করা আছে, ব্রাউজার সেটিংস থেকে অনুমতি দিন।'); return; }
+  if(!w){ showAlert('পপ-আপ ব্লক করা আছে, ব্রাউজার সেটিংস থেকে অনুমতি দিন।','red'); return; }
   w.document.write(`<html><head><title>receipt</title>
     <style>
       body{font-family:'Hind Siliguri','Segoe UI',Arial,sans-serif;padding:24px;color:#1c2420;}
@@ -1756,7 +2022,7 @@ function saveBazar(){
   const amount=parseFloat(document.getElementById('bazar-amount').value);
   const note=document.getElementById('bazar-note').value;
   const fileInput=document.getElementById('bazar-file');
-  if(!date||!amount){ alert('তারিখ ও পরিমাণ দিন!'); return; }
+  if(!date||!amount){ showAlert('তারিখ ও পরিমাণ দিন!','red'); return; }
   const file=fileInput.files[0];
   const doSave=(fileData,fileName,fileType)=>{
     DB.bazars.push({id:Date.now(),date,amount,note,fileName,fileType,fileData});
@@ -1785,7 +2051,7 @@ function filterBazar(){
     </tr>`).join('')}</tbody></table></div>
     <div class="total-row" style="margin-top:7px"><span>মোট:</span><span>${fmtMoney(total)}</span></div>`;
 }
-function deleteBazar(id){ if(!confirm('মুছবেন?')) return; const b=DB.bazars.find(x=>x.id===id); DB.bazars=DB.bazars.filter(b=>b.id!==id); save(); filterBazar(); if(b) logActivity(`🗑️ বাজার এন্ট্রি মুছে ফেলা হয়েছে: ৳${b.amount}`); }
+async function deleteBazar(id){ if(!(await showConfirm('মুছবেন?'))) return; const b=DB.bazars.find(x=>x.id===id); DB.bazars=DB.bazars.filter(b=>b.id!==id); save(); filterBazar(); if(b) logActivity(`🗑️ বাজার এন্ট্রি মুছে ফেলা হয়েছে: ৳${b.amount}`); }
 
 function openBazarImage(id){
   const b = DB.bazars.find(x=>x.id===id);
@@ -1811,11 +2077,11 @@ function selectExpType(el,type){
 }
 function addExpense(){
   let type=document.getElementById('exp-type').value;
-  if(type==='অন্যান্য'){ const c=document.getElementById('exp-custom-name').value.trim(); if(!c){alert('খরচের নাম দিন!');return;} type=c; }
+  if(type==='অন্যান্য'){ const c=document.getElementById('exp-custom-name').value.trim(); if(!c){showAlert('খরচের নাম দিন!','red');return;} type=c; }
   const amount=parseFloat(document.getElementById('exp-amount').value);
   const date=document.getElementById('exp-date').value;
   const desc=document.getElementById('exp-desc').value;
-  if(!amount||!date){ alert('পরিমাণ ও তারিখ দিন!'); return; }
+  if(!amount||!date){ showAlert('পরিমাণ ও তারিখ দিন!','red'); return; }
   DB.expenses.push({id:Date.now(),type,amount,date,desc});
   save();
   document.getElementById('exp-amount').value='';
@@ -1839,7 +2105,7 @@ function filterExpenses(){
     </tr>`).join('')}</tbody></table></div>
     <div class="total-row" style="margin-top:7px"><span>মোট:</span><span>${fmtMoney(total)}</span></div>`;
 }
-function deleteExpense(id){ if(!confirm('মুছবেন?')) return; const ex=DB.expenses.find(x=>x.id===id); DB.expenses=DB.expenses.filter(e=>e.id!==id); save(); filterExpenses(); if(ex) logActivity(`🗑️ খরচ মুছে ফেলা হয়েছে: ${ex.type} — ৳${ex.amount}`); }
+async function deleteExpense(id){ if(!(await showConfirm('মুছবেন?'))) return; const ex=DB.expenses.find(x=>x.id===id); DB.expenses=DB.expenses.filter(e=>e.id!==id); save(); filterExpenses(); if(ex) logActivity(`🗑️ খরচ মুছে ফেলা হয়েছে: ${ex.type} — ৳${ex.amount}`); }
 
 function searchBlMember(){
   const q=document.getElementById('bl-search').value.toLowerCase();
@@ -1881,7 +2147,7 @@ function renderBlSelected(){
 function addBazarSchedule(){
   const date=document.getElementById('bl-date').value;
   const note=document.getElementById('bl-note').value;
-  if(!date||!blSelectedMembers.length){ alert('তারিখ ও অন্তত একজন বাজারকারী দিন!'); return; }
+  if(!date||!blSelectedMembers.length){ showAlert('তারিখ ও অন্তত একজন বাজারকারী দিন!','red'); return; }
   if(!DB.bazarSchedule) DB.bazarSchedule=[];
   DB.bazarSchedule=DB.bazarSchedule.filter(s=>s.date!==date);
   DB.bazarSchedule.push({id:Date.now(),date,members:[...blSelectedMembers],note});
@@ -1908,11 +2174,11 @@ function filterBazarSchedule(){
       <td><button class="btn btn-danger btn-sm" onclick="deleteBazarSchedule(${s.id})">🗑️</button></td>
     </tr>`).join('')}</tbody></table></div>`;
 }
-function deleteBazarSchedule(id){ if(!confirm('মুছবেন?')) return; DB.bazarSchedule=DB.bazarSchedule.filter(s=>s.id!==id); save(); filterBazarSchedule(); }
+async function deleteBazarSchedule(id){ if(!(await showConfirm('মুছবেন?'))) return; DB.bazarSchedule=DB.bazarSchedule.filter(s=>s.id!==id); save(); filterBazarSchedule(); }
 
 function renderChalaan(){
   const month=document.getElementById('chalaan-month').value;
-  if(!month){ alert('মাস বেছে নিন!'); return; }
+  if(!month){ showAlert('মাস বেছে নিন!','red'); return; }
   const submitted=(DB.submittedDays||[]).filter(d=>d.startsWith(month)).sort();
 
   if(!submitted.length){
@@ -1989,7 +2255,7 @@ function renderChalaan(){
 
 function generateReport(){
   const month=document.getElementById('report-month').value;
-  if(!month){ alert('মাস বেছে নিন!'); return; }
+  if(!month){ showAlert('মাস বেছে নিন!','red'); return; }
   const bazarTotal=DB.bazars.filter(b=>b.date&&b.date.startsWith(month)).reduce((s,b)=>s+(b.amount||0),0);
   const expByType={};
   DB.expenses.filter(e=>e.date&&e.date.startsWith(month)).forEach(e=>{ expByType[e.type]=(expByType[e.type]||0)+(e.amount||0); });
@@ -2189,8 +2455,9 @@ function getMemberBalanceFor(data, memberId){
   let charges = 0;
   (data.submittedDays||[]).forEach(date=>{
     const st = getMealStatusFor(data, date, memberId);
-    if(st==='on') charges += MEAL_RATE;
-    else if(st==='guest') charges += (MEAL_RATE * 2);
+    const rate = (data.dayRates && data.dayRates[date]!==undefined) ? data.dayRates[date] : MEAL_RATE;
+    if(st==='on') charges += rate;
+    else if(st==='guest') charges += (rate * 2);
   });
   // জরিমানাও চার্জে যোগ (শুধু সদস্যদের, custom নয়)
   const fineTotal = (data.fines||[]).filter(f=>f.memberId===memberId && !f.isCustom).reduce((s,f)=>s+(f.amount||0),0);
@@ -2226,8 +2493,8 @@ function renderHistoryList(){
   }).join('');
 }
 
-function deleteArchivedMonth(id){
-  if(!confirm('এই মাসের ইতিহাস স্থায়ীভাবে মুছে ফেলতে চান? এই কাজ ফিরিয়ে আনা যাবে না।')) return;
+async function deleteArchivedMonth(id){
+  if(!(await showConfirm('এই মাসের ইতিহাস স্থায়ীভাবে মুছে ফেলতে চান? এই কাজ ফিরিয়ে আনা যাবে না।'))) return;
   DB.archivedMonths=(DB.archivedMonths||[]).filter(a=>a.id!==id);
   save();
   renderHistoryList();
@@ -2346,6 +2613,26 @@ function showAlert(msg,type='green'){
 }
 
 // ============================================================
+// CUSTOM CONFIRM DIALOG (মোবাইলে/ইনঅ্যাপ ভিউয়ারে native confirm() কাজ নাও করতে পারে)
+// ============================================================
+let _confirmResolver=null;
+function showConfirm(message){
+  return new Promise(resolve=>{
+    const modal=document.getElementById('confirm-modal');
+    const msgEl=document.getElementById('confirm-modal-message');
+    if(!modal||!msgEl){ resolve(true); return; }
+    msgEl.textContent=message;
+    _confirmResolver=resolve;
+    modal.style.display='flex';
+  });
+}
+function _confirmModalResolve(result){
+  const modal=document.getElementById('confirm-modal');
+  if(modal) modal.style.display='none';
+  if(_confirmResolver){ const r=_confirmResolver; _confirmResolver=null; r(result); }
+}
+
+// ============================================================
 // THEME (DARK/LIGHT MODE)
 // ============================================================
 function applyTheme(){
@@ -2445,23 +2732,23 @@ function addJorimana(){
   const amount=parseFloat(document.getElementById('jor-amount').value);
   const date=document.getElementById('jor-date').value;
   const reason=document.getElementById('jor-reason').value.trim();
-  if(!amount||amount<=0){ alert('জরিমানার পরিমাণ দিন!'); return; }
-  if(!date){ alert('তারিখ দিন!'); return; }
-  if(!reason){ alert('জরিমানার কারণ লিখুন!'); return; }
+  if(!amount||amount<=0){ showAlert('জরিমানার পরিমাণ দিন!','red'); return; }
+  if(!date){ showAlert('তারিখ দিন!','red'); return; }
+  if(!reason){ showAlert('জরিমানার কারণ লিখুন!','red'); return; }
   if(!DB.fines) DB.fines=[];
 
   let memberId=null, memberName='', room='';
 
   if(jorMode==='member'){
     memberId=parseInt(document.getElementById('jor-member-id').value);
-    if(!memberId){ alert('সদস্য বেছে নিন!'); return; }
+    if(!memberId){ showAlert('সদস্য বেছে নিন!','red'); return; }
     const member=DB.members.find(m=>m.id===memberId);
     memberName=member.name; room=member.room;
   } else {
     memberName=document.getElementById('jor-custom-name').value.trim();
     room=document.getElementById('jor-custom-room').value.trim();
-    if(!memberName){ alert('নাম লিখুন!'); return; }
-    if(!room){ alert('রুম নং লিখুন!'); return; }
+    if(!memberName){ showAlert('নাম লিখুন!','red'); return; }
+    if(!room){ showAlert('রুম নং লিখুন!','red'); return; }
     memberId = 'custom_' + Date.now(); // সদস্য না হলে custom ID
   }
 
@@ -2534,8 +2821,8 @@ function filterJorimana(){
   }
 }
 
-function deleteJorimana(id){
-  if(!confirm('এই জরিমানা মুছবেন?')) return;
+async function deleteJorimana(id){
+  if(!(await showConfirm('এই জরিমানা মুছবেন?'))) return;
   const fn=DB.fines.find(x=>x.id===id);
   DB.fines=DB.fines.filter(f=>f.id!==id);
   save(); filterJorimana();
@@ -2576,10 +2863,10 @@ function exportBackup(){
   }
 }
 
-function importBackup(input){
+async function importBackup(input){
   const file = input.files[0];
   if(!file){ return; }
-  if(!confirm('⚠️ সতর্কতা: ইম্পোর্ট করলে বর্তমান সব ডেটা মুছে ব্যাকআপের ডেটা লোড হবে। নিশ্চিত?')) {
+  if(!(await showConfirm('⚠️ সতর্কতা: ইম্পোর্ট করলে বর্তমান সব ডেটা মুছে ব্যাকআপের ডেটা লোড হবে। নিশ্চিত?'))) {
     input.value = '';
     return;
   }
@@ -2605,6 +2892,7 @@ function importBackup(input){
       if(!DB.fines) DB.fines=[];
       if(!DB.activityLog) DB.activityLog=[];
       if(!DB.backupReminderDays) DB.backupReminderDays=3;
+      if(!DB.dayRates) DB.dayRates={};
       if(DB.pinEnabled===undefined) DB.pinEnabled=false;
       if(DB.mealRate) MEAL_RATE=DB.mealRate;
       DB.members.forEach(m => {
