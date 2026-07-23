@@ -283,6 +283,7 @@ tr:hover td{background:var(--green-pale);}
         📥 ইম্পোর্ট<input type="file" accept=".json" id="import-file-input" style="display:none;" onchange="importBackup(this)">
       </label>
       <button id="theme-toggle-btn" onclick="toggleTheme()" title="থিম পরিবর্তন করুন" style="background:rgba(255,255,255,0.14);border:1.5px solid rgba(255,255,255,0.35);color:white;border-radius:8px;padding:6px 11px;font-size:0.78rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;">🌙</button>
+      <button onclick="openGlobalSearch()" title="সব ডেটার মধ্যে সার্চ করুন" style="background:rgba(255,255,255,0.14);border:1.5px solid rgba(255,255,255,0.35);color:white;border-radius:8px;padding:6px 11px;font-size:0.78rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;">🔍</button>
     </div>
   </div>
 </div>
@@ -326,6 +327,7 @@ tr:hover td{background:var(--green-pale);}
     </div>
   </div>
   <div id="backup-reminder-banner"></div>
+  <div id="monthly-summary-banner"></div>
   <div id="dash-submit-msg"></div>
 
   <div class="card" onclick="openSummaryModal()" style="cursor:pointer;">
@@ -440,6 +442,11 @@ tr:hover td{background:var(--green-pale);}
     <div class="search-box"><input type="text" id="meal-chart-search" placeholder="🔍 চার্টে নাম বা রুম দিয়ে ফিল্টার করুন..." oninput="renderMealChart()"></div>
     <div id="meal-chart-output"><div class="empty-state"><div class="icon">📊</div><p>মাস বেছে চার্ট দেখুন</p></div></div>
   </div>
+  <div class="card">
+    <div class="card-title">🗓️ ক্যালেন্ডার হিটম্যাপ (এক নজরে মিলের অবস্থা)</div>
+    <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:10px;">উপরে যে মাস বেছেছেন তার জন্য প্রতিদিনের সার্বিক উপস্থিতি (গাঢ় সবুজ = বেশি উপস্থিতি)।</p>
+    <div id="meal-calendar-heatmap"></div>
+  </div>
 </div>
 
 <!-- PAYMENT -->
@@ -545,6 +552,11 @@ tr:hover td{background:var(--green-pale);}
       </div>
     </div>
     <div id="expense-list" style="margin-top:10px;"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">📊 খরচের বিভাজন (পাই চার্ট)</div>
+    <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:10px;">উপরে "খরচের ইতিহাস" এ যে মাস বেছেছেন, সেই মাসের বাজার+খরচ কোন খাতে কত % তা দেখাবে।</p>
+    <div id="expense-pie-chart"></div>
   </div>
 </div>
 
@@ -717,6 +729,11 @@ tr:hover td{background:var(--green-pale);}
       </div>
     </div>
     <p style="font-size:0.78rem;color:var(--text-muted);">⚠️ রেট পরিবর্তন করলে আজ থেকে নতুন হিসাবে এই রেট প্রযোজ্য হবে। আগের আর্কাইভ করা মাসের হিসাবে কোনো প্রভাব পড়বে না।</p>
+    <div style="border-top:1px solid var(--gray-border);margin-top:12px;padding-top:12px;">
+      <div class="section-label" style="margin-top:0;">📈 রেট ক্যালকুলেটর (এই মাসের হিসাব থেকে সাজেশন)</div>
+      <button class="btn btn-outline" onclick="calculateSuggestedRate()">🧮 উপযুক্ত রেট হিসাব করুন</button>
+      <div id="rate-calc-output" style="margin-top:10px;"></div>
+    </div>
   </div>
 
   <div class="card">
@@ -758,6 +775,12 @@ tr:hover td{background:var(--green-pale);}
     <div id="activity-log-list"></div>
   </div>
 
+  <div class="card">
+    <div class="card-title">🗑️ ট্র্যাশ বিন (৭ দিন পর্যন্ত ফেরত আনা যাবে)</div>
+    <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:10px;">পেমেন্ট, বাজার, খরচ, সদস্য বা জরিমানা মুছে ফেললে এখানে ৭ দিনের জন্য জমা থাকবে, চাইলে ফেরত আনতে পারবেন।</p>
+    <div id="trash-bin-list"></div>
+  </div>
+
   <div class="card" style="border:2px solid var(--red);background:var(--red-light);">
     <div class="card-title" style="color:var(--red);border-bottom-color:#f1a8a3;">⚠️ ডেঞ্জার জোন</div>
     <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:10px;">অ্যাপ কেমন দেখাবে বোঝার জন্য নমুনা (ডেমো) ডেটা লোড করতে পারেন — সদস্য, মিল, পেমেন্ট, বাজার সবকিছু ভরে যাবে। অথবা সব ডেটা মুছে একদম নতুন করে শুরু করতে পারেন।</p>
@@ -768,6 +791,17 @@ tr:hover td{background:var(--green-pale);}
   </div>
 </div>
 
+</div>
+
+<div id="global-search-modal" style="display:none;position:fixed;inset:0;z-index:99700;background:rgba(11,23,18,0.75);align-items:flex-start;justify-content:center;padding:16px;" onclick="if(event.target===this) closeGlobalSearch()">
+  <div style="background:#fff;border-radius:18px;max-width:420px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,0.4);padding:16px;margin-top:40px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div class="card-title" style="margin-bottom:0;padding-bottom:0;border-bottom:none;">🔍 সব ডেটায় সার্চ করুন</div>
+      <button onclick="closeGlobalSearch()" style="background:var(--gray-bg);border:none;color:var(--text);width:28px;height:28px;border-radius:50%;font-size:0.9rem;cursor:pointer;flex-shrink:0;">✕</button>
+    </div>
+    <input type="text" id="global-search-input" placeholder="নাম, রুম, পরিমাণ, কারণ ইত্যাদি লিখুন..." oninput="performGlobalSearch()" style="width:100%;margin-bottom:10px;">
+    <div id="global-search-results"></div>
+  </div>
 </div>
 
 <div id="summary-modal" style="display:none;position:fixed;inset:0;z-index:99500;background:rgba(11,23,18,0.72);align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this) closeSummaryModal()">
@@ -831,7 +865,7 @@ tr:hover td{background:var(--green-pale);}
 // DATA
 // ============================================================
 let MEAL_RATE = 120;
-let DB = { members:[], meals:{}, payments:[], bazars:[], expenses:[], bazarSchedule:[], submittedDays:[], archivedMonths:[], fines:[], pinEnabled:false, pinHash:'', backupReminderDays:3, lastBackupAt:null, mealRate:120, activityLog:[], dayRates:{} };
+let DB = { members:[], meals:{}, payments:[], bazars:[], expenses:[], bazarSchedule:[], submittedDays:[], archivedMonths:[], fines:[], pinEnabled:false, pinHash:'', backupReminderDays:3, lastBackupAt:null, mealRate:120, activityLog:[], dayRates:{}, trash:[] };
 let blSelectedMembers = []; // up to 3 for bazar list
 
 function save(){ try{ localStorage.setItem('messDB_v4', JSON.stringify(DB)); }catch(e){} }
@@ -853,6 +887,7 @@ function load(){
     if(!DB.activityLog) DB.activityLog=[];
     if(!DB.backupReminderDays) DB.backupReminderDays=3;
     if(!DB.dayRates) DB.dayRates={};
+    if(!DB.trash) DB.trash=[];
     if(DB.pinEnabled===undefined) DB.pinEnabled=false;
     if(DB.mealRate) MEAL_RATE=DB.mealRate; else DB.mealRate=MEAL_RATE;
     if(DB.notifEnabled===undefined) DB.notifEnabled=false;
@@ -869,6 +904,63 @@ function logActivity(text){
   if(DB.activityLog.length>200) DB.activityLog.length=200;
   save();
 }
+
+// ============================================================
+// ট্র্যাশ বিন (৭ দিন পর্যন্ত মুছে ফেলা জিনিস ফেরত আনা যাবে)
+// ============================================================
+function moveToTrash(type, data){
+  if(!DB.trash) DB.trash=[];
+  DB.trash.unshift({id:Date.now()+Math.floor(Math.random()*1000), type, data:{...data}, deletedAt:new Date().toISOString()});
+  const cutoff = Date.now() - 7*24*60*60*1000;
+  DB.trash = DB.trash.filter(t => new Date(t.deletedAt).getTime() > cutoff);
+  save();
+}
+function restoreFromTrash(trashId){
+  if(!DB.trash) return;
+  const idx = DB.trash.findIndex(t=>t.id===trashId);
+  if(idx===-1) return;
+  const item = DB.trash[idx];
+  if(item.type==='payment') DB.payments.push(item.data);
+  else if(item.type==='bazar') DB.bazars.push(item.data);
+  else if(item.type==='expense') DB.expenses.push(item.data);
+  else if(item.type==='member') DB.members.push(item.data);
+  else if(item.type==='fine') DB.fines.push(item.data);
+  DB.trash.splice(idx,1);
+  save();
+  showAlert('✅ পুনরুদ্ধার করা হয়েছে');
+  logActivity(`↩️ ট্র্যাশ থেকে পুনরুদ্ধার করা হয়েছে (${item.type})`);
+  renderTrashBin();
+  populatePaySelect(); renderMembersByFloor(); renderDashboard();
+}
+function permanentlyDeleteTrash(trashId){
+  if(!DB.trash) return;
+  DB.trash = DB.trash.filter(t=>t.id!==trashId);
+  save();
+  renderTrashBin();
+}
+function renderTrashBin(){
+  const el=document.getElementById('trash-bin-list');
+  if(!el) return;
+  const list=(DB.trash||[]);
+  if(!list.length){ el.innerHTML='<div class="empty-state"><div class="icon">🗑️</div><p>ট্র্যাশ খালি আছে</p></div>'; return; }
+  const typeLabel={payment:'💵 পেমেন্ট', bazar:'🛒 বাজার', expense:'💡 খরচ', member:'👤 সদস্য', fine:'⚠️ জরিমানা'};
+  el.innerHTML=list.map(t=>{
+    let desc='';
+    if(t.type==='payment') desc=`${t.data.memberName||''} — ৳${t.data.amount}`;
+    else if(t.type==='bazar') desc=`৳${t.data.amount} ${t.data.note?'('+t.data.note+')':''}`;
+    else if(t.type==='expense') desc=`${t.data.type} — ৳${t.data.amount}`;
+    else if(t.type==='member') desc=`${t.data.name} (রুম ${t.data.room})`;
+    else if(t.type==='fine') desc=`${t.data.memberName||''} — ৳${t.data.amount}`;
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 11px;border:1px solid var(--gray-border);border-radius:8px;margin-bottom:6px;flex-wrap:wrap;gap:6px;">
+      <div><span class="badge badge-blue">${typeLabel[t.type]||t.type}</span> <span style="font-size:0.82rem;">${desc}</span><div style="font-size:0.68rem;color:var(--text-muted);">মুছা হয়েছে: ${fmtDate(t.deletedAt.slice(0,10))}</div></div>
+      <div style="display:flex;gap:5px;">
+        <button class="btn btn-outline btn-sm" onclick="restoreFromTrash(${t.id})">↩️ ফেরত</button>
+        <button class="btn btn-danger btn-sm" onclick="permanentlyDeleteTrash(${t.id})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function renderActivityLog(){
   const el=document.getElementById('activity-log-list');
   if(!el) return;
@@ -949,6 +1041,28 @@ function checkBackupReminder(){
     el.innerHTML='';
   }
 }
+function checkMonthlySummaryReminder(){
+  const el=document.getElementById('monthly-summary-banner');
+  if(!el) return;
+  const today=todayStr();
+  const day=parseInt(today.slice(8,10));
+  const curMonth=thisMonth();
+  const hasOldMonthMeals=(DB.submittedDays||[]).some(d=>!d.startsWith(curMonth));
+  const hasEnoughDaysThisMonth=(DB.submittedDays||[]).filter(d=>d.startsWith(curMonth)).length>=25;
+  if(day<=3 && hasOldMonthMeals){
+    el.innerHTML=`<div class="alert alert-amber" style="justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      <span>📅 নতুন মাস শুরু হয়েছে মনে হচ্ছে — আগের মাসের সম্পূর্ণ রিপোর্ট দেখে নিন।</span>
+      <button class="btn btn-amber btn-sm" onclick="showPage('report')">📊 রিপোর্ট দেখুন</button>
+    </div>`;
+  } else if(hasEnoughDaysThisMonth){
+    el.innerHTML=`<div class="alert alert-amber" style="justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      <span>🗓️ এই মাস প্রায় শেষ — নতুন মাস শুরু করার সময় হয়ে এসেছে কি?</span>
+      <button class="btn btn-amber btn-sm" onclick="showPage('members')">🗓️ নতুন মাস</button>
+    </div>`;
+  } else {
+    el.innerHTML='';
+  }
+}
 function updateBackupReminderDays(){
   const v=parseInt(document.getElementById('set-backup-days').value);
   DB.backupReminderDays=v; save();
@@ -966,6 +1080,32 @@ function updateMealRate(){
   logActivity('🍽️ মিল রেট পরিবর্তন করা হয়েছে: ৳'+v);
   showAlert('মিল রেট আপডেট হয়েছে ✅');
   renderDashboard();
+}
+
+function calculateSuggestedRate(){
+  const el=document.getElementById('rate-calc-output');
+  const month=thisMonth();
+  const bazarTotal=DB.bazars.filter(b=>b.date&&b.date.startsWith(month)).reduce((s,b)=>s+(b.amount||0),0);
+  const expTotal=DB.expenses.filter(e=>e.date&&e.date.startsWith(month)).reduce((s,e)=>s+(e.amount||0),0);
+  const totalCost=bazarTotal+expTotal;
+  const submittedInMonth=(DB.submittedDays||[]).filter(d=>d.startsWith(month));
+  let totalMeals=0;
+  submittedInMonth.forEach(date=>{
+    DB.members.forEach(m=>{
+      const st=getMealStatus(date,m.id);
+      if(st==='on') totalMeals++;
+      else if(st==='guest') totalMeals+=2;
+    });
+  });
+  if(!totalMeals){
+    el.innerHTML='<div class="alert alert-amber">⚠️ এই মাসে এখনো কোনো মিল সাবমিট হয়নি, হিসাব করার মতো ডেটা নেই।</div>';
+    return;
+  }
+  const suggested=Math.round((totalCost/totalMeals)*10)/10;
+  el.innerHTML=`<div class="alert alert-green" style="flex-direction:column;align-items:flex-start;gap:6px;">
+    <div>মোট খরচ (বাজার+অন্যান্য): ৳${totalCost} ÷ মোট মিল: ${totalMeals} = <strong>৳${suggested} প্রতি মিল</strong></div>
+    <button class="btn btn-amber btn-sm" onclick="document.getElementById('set-meal-rate').value=${suggested};showAlert('সাজেস্টেড রেট বসানো হয়েছে, সেভ করতে রেট সেভ বাটনে চাপুন','amber');">এই রেট বসান</button>
+  </div>`;
 }
 
 // ============================================================
@@ -1032,6 +1172,7 @@ function renderSettingsPage(){
   const lbEl=document.getElementById('last-backup-info');
   if(lbEl) lbEl.textContent = DB.lastBackupAt ? fmtDate(DB.lastBackupAt) : 'এখনো নেওয়া হয়নি';
   renderActivityLog();
+  renderTrashBin();
 }
 
 // ============================================================
@@ -1164,15 +1305,15 @@ function deriveMonthLabel(snapshot){
 }
 
 async function startNewMonth(){
-  if(!(await showConfirm('⚠️ আপনি কি নিশ্চিত? নতুন মাস শুরু করলে বর্তমান মাসের সদস্য, পেমেন্ট, মিল, বাজার ও খরচ — সব "ইতিহাস" এ সংরক্ষিত হয়ে যাবে এবং একদম নতুন/ফাঁকা মাস শুরু হবে। পরের মাসের সাথে আগের মাসের কোনো হিসাব মিলবে না।'))) return;
+  if(!(await showConfirm('⚠️ আপনি কি নিশ্চিত? নতুন মাস শুরু করলে বর্তমান মাসের মিল, পেমেন্ট, বাজার ও খরচের হিসাব "ইতিহাস" এ সংরক্ষিত হয়ে যাবে এবং নতুন/ফাঁকা হিসাব শুরু হবে। সদস্য তালিকা অপরিবর্তিত থাকবে এবং প্রত্যেকের বর্তমান ব্যালেন্স নতুন মাসে জমা/বাকি হিসেবে যোগ হবে।'))) return;
   if(!(await showConfirm('চূড়ান্ত নিশ্চিতকরণ: নতুন মাস শুরু করতে চান?'))) return;
 
-  const hasAnyData = (DB.members&&DB.members.length) || (DB.payments&&DB.payments.length) ||
+  const hasAnyData = (DB.payments&&DB.payments.length) ||
                       (DB.bazars&&DB.bazars.length) || (DB.expenses&&DB.expenses.length) ||
                       (DB.submittedDays&&DB.submittedDays.length);
   if(hasAnyData){
     const snapshot = {
-      members: DB.members||[],
+      members: (DB.members||[]).map(m=>({...m})),
       meals: DB.meals||{},
       payments: DB.payments||[],
       bazars: DB.bazars||[],
@@ -1192,9 +1333,14 @@ async function startNewMonth(){
     });
   }
 
-  DB.members=[]; DB.meals={}; DB.payments=[]; DB.bazars=[]; DB.expenses=[]; DB.bazarSchedule=[]; DB.submittedDays=[]; DB.fines=[]; DB.dayRates={};
+  // ক্যারি-ফরওয়ার্ড: প্রতিটা সদস্যের চূড়ান্ত ব্যালেন্স পরের মাসে ওপেনিং ব্যালেন্স হিসেবে বহন হবে
+  (DB.members||[]).forEach(m=>{
+    m.openingBalance = getMemberBalance(m.id);
+  });
+
+  DB.meals={}; DB.payments=[]; DB.bazars=[]; DB.expenses=[]; DB.bazarSchedule=[]; DB.submittedDays=[]; DB.fines=[]; DB.dayRates={};
   save();
-  logActivity('🗓️ নতুন মাস শুরু করা হয়েছে');
+  logActivity('🗓️ নতুন মাস শুরু করা হয়েছে (সদস্য তালিকা ও ব্যালেন্স ক্যারি-ফরওয়ার্ড রাখা হয়েছে)');
   dashDate = todayStr();
   document.getElementById('dash-date-input').value = dashDate;
   ['pay-date','bazar-date','exp-date','bl-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=dashDate;});
@@ -1204,7 +1350,7 @@ async function startNewMonth(){
   populatePaySelect();
   renderMembersByFloor();
   renderDashboard();
-  showAlert('✅ নতুন মাস শুরু হয়েছে — আগের মাসের হিসাব "ইতিহাস" ট্যাবে সংরক্ষিত আছে', 'green');
+  showAlert('✅ নতুন মাস শুরু হয়েছে — সদস্য তালিকা ও ব্যালেন্স বজায় আছে, আগের মাসের হিসাব "ইতিহাস" ট্যাবে সংরক্ষিত আছে', 'green');
 }
 
 function todayStr(){ return new Date().toLocaleDateString('sv-SE', {timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone}); }
@@ -1283,6 +1429,8 @@ function getRateForDate(date){
   return MEAL_RATE;
 }
 function getMemberBalance(memberId){
+  const m = DB.members.find(x=>x.id===memberId);
+  const opening = (m && m.openingBalance) || 0;
   const paid = DB.payments.filter(p=>p.memberId===memberId).reduce((s,p)=>s+(p.amount||0),0);
   let charges = 0;
   
@@ -1296,7 +1444,7 @@ function getMemberBalance(memberId){
       charges += (rate * 2); // নিজের মিল + গেস্ট মিল
     }
   });
-  return paid - charges;
+  return opening + paid - charges;
 }
 
 // ============================================================
@@ -1317,6 +1465,7 @@ function showPage(name){
     filterPayments(); 
   }
   if(name==='bazar'){ renderBazarQuotaList(); }
+  if(name==='expenses'){ document.getElementById('exp-filter-month').value=thisMonth(); filterExpenses(); }
   if(name==='bazarlist'){ filterBazarSchedule(); }
   if(name==='report'){ document.getElementById('report-month').value=thisMonth(); }
   if(name==='chalaan'){ document.getElementById('chalaan-month').value=thisMonth(); }
@@ -1424,6 +1573,7 @@ async function deleteDay(){
 
 function renderDashboard(){
   checkBackupReminder();
+  checkMonthlySummaryReminder();
   checkDailyNotification();
   document.getElementById('dash-date-input').value=dashDate;
   const lbl=document.getElementById('dash-date-label');
@@ -1500,7 +1650,8 @@ function renderDashboard(){
     :warned.map(m=>{
         const bal=getMemberBalance(m.id);
         const waBtn=m.phone?`<a href="https://wa.me/88${m.phone.replace(/[^0-9]/g,'')}?text=${encodeURIComponent('আসসালামু আলাইকুম '+m.name+', আপনার মেস ব্যালেন্স '+fmtMoney(bal)+'। দয়া করে দ্রুত পেমেন্ট করুন।')}" target="_blank" class="btn btn-sm" style="background:#25D366;color:#fff;">📱</a>`:'';
-        return `<div class="warning-item"><div class="warning-info"><div class="warning-name">${m.name}</div><div class="warning-meta">রুম ${m.room} · ${m.phone||'নং নেই'} · ব্যালেন্স: ${fmtMoney(bal)}</div></div><div style="display:flex;align-items:center;gap:7px;"><div class="warning-bal">${fmtMoney(bal)}</div>${waBtn}</div></div>`;
+        const smsBtn=m.phone?`<a href="sms:${m.phone.replace(/[^0-9]/g,'')}?body=${encodeURIComponent('আসসালামু আলাইকুম '+m.name+', আপনার মেস ব্যালেন্স '+fmtMoney(bal)+'। দয়া করে দ্রুত পেমেন্ট করুন।')}" class="btn btn-sm btn-outline">✉️</a>`:'';
+        return `<div class="warning-item"><div class="warning-info"><div class="warning-name">${m.name}</div><div class="warning-meta">রুম ${m.room} · ${m.phone||'নং নেই'} · ব্যালেন্স: ${fmtMoney(bal)}</div></div><div style="display:flex;align-items:center;gap:7px;"><div class="warning-bal">${fmtMoney(bal)}</div>${waBtn}${smsBtn}</div></div>`;
       }).join('');
 
   // বাকি: শুধু যাদের ব্যালেন্স ০ এর নিচে
@@ -1508,7 +1659,7 @@ function renderDashboard(){
   document.getElementById('due-list').innerHTML=!dueMembers.length
     ?'<div class="alert alert-green">✅ কারো ব্যালেন্স ঋণাত্মক নেই!</div>'
     :`<div class="table-wrap"><table><thead><tr><th>নাম</th><th>রুম</th><th>মোবাইল</th><th>ব্যালেন্স</th><th>যোগাযোগ</th></tr></thead><tbody>
-      ${dueMembers.sort((a,b)=>getMemberBalance(a.id)-getMemberBalance(b.id)).map(m=>{const bal=getMemberBalance(m.id);const waBtn=m.phone?`<a href="https://wa.me/88${m.phone.replace(/[^0-9]/g,'')}?text=${encodeURIComponent('আসসালামু আলাইকুম '+m.name+', আপনার মেস ব্যালেন্স '+fmtMoney(bal)+'। দয়া করে দ্রুত পরিশোধ করুন।')}" target="_blank" class="btn btn-sm" style="background:#25D366;color:#fff;">📱</a>`:'-';return `<tr><td><strong>${m.name}</strong></td><td>${m.room}</td><td>${m.phone||'-'}</td><td><span class="badge badge-red">${fmtMoney(bal)}</span></td><td>${waBtn}</td></tr>`;}).join('')}
+      ${dueMembers.sort((a,b)=>getMemberBalance(a.id)-getMemberBalance(b.id)).map(m=>{const bal=getMemberBalance(m.id);const waBtn=m.phone?`<a href="https://wa.me/88${m.phone.replace(/[^0-9]/g,'')}?text=${encodeURIComponent('আসসালামু আলাইকুম '+m.name+', আপনার মেস ব্যালেন্স '+fmtMoney(bal)+'। দয়া করে দ্রুত পরিশোধ করুন।')}" target="_blank" class="btn btn-sm" style="background:#25D366;color:#fff;">📱</a>`:'-';const smsBtn=m.phone?`<a href="sms:${m.phone.replace(/[^0-9]/g,'')}?body=${encodeURIComponent('আসসালামু আলাইকুম '+m.name+', আপনার মেস ব্যালেন্স '+fmtMoney(bal)+'। দয়া করে দ্রুত পরিশোধ করুন।')}" class="btn btn-sm btn-outline">✉️</a>`:'';return `<tr><td><strong>${m.name}</strong></td><td>${m.room}</td><td>${m.phone||'-'}</td><td><span class="badge badge-red">${fmtMoney(bal)}</span></td><td>${waBtn}${smsBtn}</td></tr>`;}).join('')}
       </tbody></table></div>`;
   renderTrendChart();
 }
@@ -1589,7 +1740,7 @@ async function addMember(){
   const id=Date.now();
 
   const finishAdd=(photo)=>{
-    DB.members.push({id,name,room,phone,emergency,photo:photo||null,active:true,floor,joinDate,eggQty:0,broilerQty:1,fishQty:1});
+    DB.members.push({id,name,room,phone,emergency,photo:photo||null,active:true,floor,joinDate,eggQty:0,broilerQty:1,fishQty:1,openingBalance:0});
     if(!DB.meals[joinDate]) DB.meals[joinDate]={};
     DB.meals[joinDate][id]='on';
     save();
@@ -1713,11 +1864,12 @@ function reactivateMember(id){
 }
 
 async function deleteMember(id){
-  if(!(await showConfirm('এটা স্থায়ীভাবে মুছে ফেলবে (হিস্ট্রিসহ)। বদলে "মেস ছাড়লেন" বাটন ব্যবহার করলে হিস্ট্রি থেকে যায়। তবুও স্থায়ীভাবে মুছবেন?'))) return;
+  if(!(await showConfirm('এটা মেম্বার তালিকা থেকে সরিয়ে ট্র্যাশে পাঠাবে (৭ দিন পর্যন্ত ফেরত আনা যাবে সেটিংস থেকে)। বদলে "মেস ছাড়লেন" বাটন ব্যবহার করলে সরাসরি তালিকায় থেকে যায়। তবুও মুছবেন?'))) return;
   const m=DB.members.find(x=>x.id===id);
+  if(m) moveToTrash('member',m);
   DB.members=DB.members.filter(m=>m.id!==id);
   save(); renderMembersByFloor(); populatePaySelect();
-  if(m) logActivity(`🗑️ সদস্য মুছে ফেলা হয়েছে: ${m.name} (রুম ${m.room})`);
+  if(m) logActivity(`🗑️ সদস্য মুছে ফেলা হয়েছে (ট্র্যাশে গেছে): ${m.name} (রুম ${m.room})`);
   closeMemberProfile();
 }
 
@@ -1767,7 +1919,7 @@ function openMemberProfile(id){
       ${monthFines>0?`<div class="alert alert-red" style="margin-bottom:12px;">⚠️ এই মাসের জরিমানা: ৳${monthFines}</div>`:''}
       <div class="section-label">যোগাযোগ ও তথ্য</div>
       <div style="font-size:0.85rem;line-height:1.9;margin-bottom:14px;">
-        <div>📱 মোবাইল: <strong>${m.phone||'নেই'}</strong>${m.phone?` <a href="https://wa.me/88${m.phone.replace(/[^0-9]/g,'')}" target="_blank" style="color:#25D366;font-weight:700;">(WhatsApp)</a>`:''}</div>
+        <div>📱 মোবাইল: <strong>${m.phone||'নেই'}</strong>${m.phone?` <a href="https://wa.me/88${m.phone.replace(/[^0-9]/g,'')}" target="_blank" style="color:#25D366;font-weight:700;">(WhatsApp)</a> <a href="sms:${m.phone.replace(/[^0-9]/g,'')}" style="color:var(--blue);font-weight:700;">(SMS)</a>`:''}</div>
         <div>🆘 ইমার্জেন্সি: <strong>${m.emergency||'দেওয়া নেই'}</strong></div>
         <div>📅 যোগদান: <strong>${fmtDate(m.joinDate)}</strong></div>
         ${m.leftDate?`<div>🚪 মেস ছেড়েছেন: <strong>${fmtDate(m.leftDate)}</strong></div>`:''}
@@ -1797,6 +1949,78 @@ function closeSummaryModal(){
   if(modal) modal.style.display='none';
 }
 
+function openGlobalSearch(){
+  const modal=document.getElementById('global-search-modal');
+  if(modal) modal.style.display='flex';
+  const inp=document.getElementById('global-search-input');
+  if(inp){ inp.value=''; setTimeout(()=>inp.focus(),150); }
+  document.getElementById('global-search-results').innerHTML='<div class="empty-state"><div class="icon">🔍</div><p>খোঁজার জন্য কিছু লিখুন</p></div>';
+}
+function closeGlobalSearch(){
+  const modal=document.getElementById('global-search-modal');
+  if(modal) modal.style.display='none';
+}
+function performGlobalSearch(){
+  const q=document.getElementById('global-search-input').value.trim().toLowerCase();
+  const el=document.getElementById('global-search-results');
+  if(!q){ el.innerHTML='<div class="empty-state"><div class="icon">🔍</div><p>খোঁজার জন্য কিছু লিখুন</p></div>'; return; }
+
+  let html='';
+
+  const mems=DB.members.filter(m=>m.name.toLowerCase().includes(q)||m.room.includes(q)||(m.phone||'').includes(q)).slice(0,6);
+  if(mems.length){
+    html+=`<div class="section-label">👤 সদস্য</div>`;
+    mems.forEach(m=>{
+      html+=`<div style="padding:8px 10px;border:1px solid var(--gray-border);border-radius:8px;margin-bottom:5px;cursor:pointer;" onclick="closeGlobalSearch();showPage('members');setTimeout(()=>openMemberProfile(${m.id}),200);">
+        <strong>${m.name}</strong> — রুম ${m.room} <span style="float:right;color:var(--text-muted);font-size:0.78rem;">${fmtMoney(getMemberBalance(m.id))}</span>
+      </div>`;
+    });
+  }
+
+  const pays=DB.payments.filter(p=>(p.memberName||'').toLowerCase().includes(q)||(p.room||'').includes(q)||(p.note||'').toLowerCase().includes(q)||String(p.amount).includes(q)).slice(0,6);
+  if(pays.length){
+    html+=`<div class="section-label">💵 পেমেন্ট</div>`;
+    pays.forEach(p=>{
+      html+=`<div style="padding:8px 10px;border:1px solid var(--gray-border);border-radius:8px;margin-bottom:5px;cursor:pointer;" onclick="closeGlobalSearch();showPage('payment');">
+        <strong>${p.memberName}</strong> — ৳${p.amount} <span style="float:right;color:var(--text-muted);font-size:0.78rem;">${fmtDate(p.date)}</span>
+      </div>`;
+    });
+  }
+
+  const baz=DB.bazars.filter(b=>(b.note||'').toLowerCase().includes(q)||String(b.amount).includes(q)).slice(0,6);
+  if(baz.length){
+    html+=`<div class="section-label">🛒 বাজার</div>`;
+    baz.forEach(b=>{
+      html+=`<div style="padding:8px 10px;border:1px solid var(--gray-border);border-radius:8px;margin-bottom:5px;cursor:pointer;" onclick="closeGlobalSearch();showPage('bazar');">
+        ${b.note||'বাজার'} — ৳${b.amount} <span style="float:right;color:var(--text-muted);font-size:0.78rem;">${fmtDate(b.date)}</span>
+      </div>`;
+    });
+  }
+
+  const exps=DB.expenses.filter(e=>(e.type||'').toLowerCase().includes(q)||(e.desc||'').toLowerCase().includes(q)||String(e.amount).includes(q)).slice(0,6);
+  if(exps.length){
+    html+=`<div class="section-label">💡 খরচ</div>`;
+    exps.forEach(e=>{
+      html+=`<div style="padding:8px 10px;border:1px solid var(--gray-border);border-radius:8px;margin-bottom:5px;cursor:pointer;" onclick="closeGlobalSearch();showPage('expenses');">
+        ${e.type} — ৳${e.amount} ${e.desc?'('+e.desc+')':''}
+      </div>`;
+    });
+  }
+
+  const fines=(DB.fines||[]).filter(f=>(f.memberName||'').toLowerCase().includes(q)||(f.reason||'').toLowerCase().includes(q)).slice(0,6);
+  if(fines.length){
+    html+=`<div class="section-label">⚠️ জরিমানা</div>`;
+    fines.forEach(f=>{
+      html+=`<div style="padding:8px 10px;border:1px solid var(--gray-border);border-radius:8px;margin-bottom:5px;cursor:pointer;" onclick="closeGlobalSearch();showPage('jorimana');">
+        <strong>${f.memberName}</strong> — ৳${f.amount} <span style="float:right;color:var(--text-muted);font-size:0.78rem;">${f.reason||''}</span>
+      </div>`;
+    });
+  }
+
+  if(!html){ html='<div class="empty-state"><div class="icon">😕</div><p>কিছু পাওয়া যায়নি</p></div>'; }
+  el.innerHTML=html;
+}
+
 function renderBalanceByFloor(){
   const floors=[2,3,4,5,6,0];
   let html='';
@@ -1806,8 +2030,9 @@ function renderBalanceByFloor(){
     html+=`<div class="card" style="padding:0;overflow:hidden;">
       <div class="floor-header">${floorBn(f)} — ${fm.length} জন</div>
       <div class="table-wrap"><table>
-        <thead><tr><th>নাম</th><th>রুম</th><th>মোবাইল</th><th>মোট পেমেন্ট</th><th>মোট চার্জ</th><th>ব্যালেন্স</th></tr></thead>
+        <thead><tr><th>নাম</th><th>রুম</th><th>মোবাইল</th><th>বহন (আগের মাস)</th><th>মোট পেমেন্ট</th><th>মোট চার্জ</th><th>ব্যালেন্স</th></tr></thead>
         <tbody>${fm.map(m=>{
+          const opening=m.openingBalance||0;
           const paid=DB.payments.filter(p=>p.memberId===m.id).reduce((s,p)=>s+(p.amount||0),0);
           let charges=0;
           (DB.submittedDays||[]).forEach(date=>{
@@ -1816,8 +2041,9 @@ function renderBalanceByFloor(){
             if(st==='on') charges+=rate;
             else if(st==='guest') charges+=(rate*2);
           });
-          const bal=paid-charges;
+          const bal=getMemberBalance(m.id);
           return `<tr><td><strong>${m.name}</strong></td><td>${m.room}</td><td>${m.phone||'-'}</td>
+            <td>${opening!==0?`<span class="badge ${opening>=0?'badge-green':'badge-red'}">${fmtMoney(opening)}</span>`:'<span style="color:var(--text-muted);font-size:0.75rem;">—</span>'}</td>
             <td><span class="badge badge-green">৳${paid}</span></td>
             <td><span class="badge badge-red">৳${charges}</span></td>
             <td><span class="badge ${bal>=0?'badge-green':'badge-red'}">${fmtMoney(bal)}</span></td></tr>`;
@@ -1894,6 +2120,7 @@ function setMeal(date,memberId,status){
 function renderMealChart(){
   const month=document.getElementById('chart-month').value;
   if(!month){ showAlert('মাস বেছে নিন!','red'); return; }
+  renderMealCalendarHeatmap(month);
   const q=(document.getElementById('meal-chart-search')||{value:''}).value.toLowerCase();
   const days=getDaysInMonth(month);
   const [yr,mo]=month.split('-');
@@ -1939,6 +2166,51 @@ function renderMealChart(){
     html+=`</tbody></table></div></div>`;
   });
   document.getElementById('meal-chart-output').innerHTML=html;
+}
+
+function renderMealCalendarHeatmap(month){
+  const el=document.getElementById('meal-calendar-heatmap');
+  if(!el) return;
+  const days=getDaysInMonth(month);
+  const [yr,mo]=month.split('-').map(Number);
+  const firstDow=new Date(yr,mo-1,1).getDay(); // 0=Sun
+  const dayNames=['রবি','সোম','মঙ্গল','বুধ','বৃহ','শুক্র','শনি'];
+  const totalActiveMembers=DB.members.filter(m=>m.active!==false).length || 1;
+
+  let cells='';
+  for(let i=0;i<firstDow;i++) cells+=`<div></div>`;
+  for(let d=1;d<=days;d++){
+    const date=`${yr}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const submitted=(DB.submittedDays||[]).includes(date);
+    if(!submitted){
+      cells+=`<div style="aspect-ratio:1;border-radius:6px;background:var(--gray-bg);border:1px dashed var(--gray-border);display:flex;align-items:center;justify-content:center;font-size:0.68rem;color:var(--text-muted);" title="সাবমিট হয়নি">${d}</div>`;
+      continue;
+    }
+    let onC=0, guestC=0;
+    DB.members.forEach(m=>{
+      const st=getMealStatus(date,m.id);
+      if(st==='on') onC++;
+      else if(st==='guest'){ onC++; guestC++; }
+    });
+    const ratio=Math.min(1, onC/totalActiveMembers);
+    const alpha=0.15+ratio*0.75;
+    cells+=`<div style="aspect-ratio:1;border-radius:6px;background:rgba(14,77,54,${alpha.toFixed(2)});display:flex;flex-direction:column;align-items:center;justify-content:center;color:${ratio>0.45?'#fff':'var(--text)'};position:relative;" title="${onC} জন মিল অন${guestC?', '+guestC+' গেস্ট':''}">
+      <span style="font-size:0.72rem;font-weight:700;">${d}</span>
+      <span style="font-size:0.6rem;">${onC}</span>
+      ${guestC>0?`<span style="position:absolute;top:1px;right:2px;font-size:0.55rem;background:var(--pink);color:#fff;border-radius:50%;width:13px;height:13px;display:flex;align-items:center;justify-content:center;">${guestC}</span>`:''}
+    </div>`;
+  }
+
+  el.innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px;">
+      ${dayNames.map(n=>`<div style="text-align:center;font-size:0.65rem;font-weight:700;color:var(--text-muted);">${n}</div>`).join('')}
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">${cells}</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:0.7rem;color:var(--text-muted);flex-wrap:wrap;">
+      <span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;border-radius:3px;background:rgba(14,77,54,0.15);display:inline-block;"></span> কম উপস্থিতি</span>
+      <span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;border-radius:3px;background:rgba(14,77,54,0.9);display:inline-block;"></span> বেশি উপস্থিতি</span>
+      <span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;border-radius:3px;background:var(--gray-bg);border:1px dashed var(--gray-border);display:inline-block;"></span> সাবমিট হয়নি</span>
+    </div>`;
 }
 
 function searchPayMember(){
@@ -2004,7 +2276,7 @@ function filterPayments(){
     </tr>`).join('')}</tbody></table></div>
     <div class="total-row" style="margin-top:7px"><span>মোট:</span><span>${fmtMoney(total)}</span></div>`;
 }
-async function deletePayment(id){ if(!(await showConfirm('মুছবেন?'))) return; const p=DB.payments.find(x=>x.id===id); DB.payments=DB.payments.filter(p=>p.id!==id); save(); filterPayments(); if(p) logActivity(`🗑️ পেমেন্ট মুছে ফেলা হয়েছে: ${p.memberName} — ৳${p.amount}`); }
+async function deletePayment(id){ if(!(await showConfirm('মুছবেন?'))) return; const p=DB.payments.find(x=>x.id===id); if(p) moveToTrash('payment',p); DB.payments=DB.payments.filter(p=>p.id!==id); save(); filterPayments(); if(p) logActivity(`🗑️ পেমেন্ট মুছে ফেলা হয়েছে (ট্র্যাশে গেছে): ${p.memberName} — ৳${p.amount}`); }
 
 function printReceipt(id){
   const p=DB.payments.find(x=>x.id===id);
@@ -2032,6 +2304,66 @@ function printReceipt(id){
         <tr><td>মন্তব্য</td><td style="text-align:right;">${p.note||'-'}</td></tr>
       </table>
       <div class="r-amount">${fmtMoney(p.amount)}</div>
+      <div class="r-footer">অটোমেটিক তৈরি — Smart Meal Manager</div>
+    </body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(),300);
+}
+
+function printMonthlyInvoice(memberId, month){
+  const m=DB.members.find(x=>x.id===memberId);
+  if(!m) return;
+  const logoImg=document.querySelector('.header img');
+  const logoSrc=logoImg?logoImg.src:'';
+
+  const pays=DB.payments.filter(p=>p.memberId===memberId&&p.date&&p.date.startsWith(month)).sort((a,b)=>a.date.localeCompare(b.date));
+  const totalPaid=pays.reduce((s,p)=>s+(p.amount||0),0);
+  const submittedInMonth=(DB.submittedDays||[]).filter(d=>d.startsWith(month));
+  let onC=0,offC=0,guestC=0,charges=0;
+  submittedInMonth.forEach(date=>{
+    const st=getMealStatus(date,memberId);
+    const rate=getRateForDate(date);
+    if(st==='on'){ onC++; charges+=rate; }
+    else if(st==='off'){ offC++; }
+    else if(st==='guest'){ onC++; guestC++; charges+=(rate*2); }
+  });
+  const fineTotal=(DB.fines||[]).filter(f=>f.memberId===memberId&&f.date&&f.date.startsWith(month)&&!f.isCustom).reduce((s,f)=>s+(f.amount||0),0);
+  const bal=getMemberBalance(memberId);
+
+  const w=window.open('','_blank','width=460,height=700');
+  if(!w){ showAlert('পপ-আপ ব্লক করা আছে, ব্রাউজার সেটিংস থেকে অনুমতি দিন।','red'); return; }
+  w.document.write(`<html><head><title>monthly invoice</title>
+    <style>
+      body{font-family:'Hind Siliguri','Segoe UI',Arial,sans-serif;padding:24px;color:#1c2420;}
+      .r-header{text-align:center;margin-bottom:16px;}
+      .r-header img{height:56px;}
+      .r-title{font-weight:700;font-size:1.15rem;margin-top:8px;}
+      .r-sub{font-size:0.85rem;color:#666;}
+      table{width:100%;border-collapse:collapse;margin-top:12px;}
+      td,th{padding:6px 4px;border-bottom:1px solid #ddd;font-size:0.85rem;text-align:left;}
+      th{background:#f0f0f0;}
+      .r-amount{font-size:1.5rem;font-weight:800;color:${bal>=0?'#0E4D36':'#B8433D'};text-align:center;margin:16px 0;}
+      .r-footer{text-align:center;font-size:0.72rem;color:#777;margin-top:20px;}
+      .section-h{font-weight:700;margin-top:14px;font-size:0.9rem;}
+    </style></head><body>
+      <div class="r-header">${logoSrc?`<img src="${logoSrc}">`:''}<div class="r-title">মাসিক হিসাব বিবরণী</div><div class="r-sub">${fmtMonthKey ? fmtMonthKey(month) : month}</div></div>
+      <table>
+        <tr><td>নাম</td><td style="text-align:right;"><strong>${m.name}</strong></td></tr>
+        <tr><td>রুম</td><td style="text-align:right;">${m.room}</td></tr>
+        <tr><td>মোবাইল</td><td style="text-align:right;">${m.phone||'-'}</td></tr>
+      </table>
+      <div class="section-h">মিল সারসংক্ষেপ</div>
+      <table>
+        <tr><th>মিল অন</th><th>মিল অফ</th><th>গেস্ট মিল</th></tr>
+        <tr><td>${onC}</td><td>${offC}</td><td>${guestC}</td></tr>
+      </table>
+      <div class="section-h">আর্থিক হিসাব</div>
+      <table>
+        <tr><td>মোট মিল চার্জ</td><td style="text-align:right;">৳${charges}</td></tr>
+        ${fineTotal>0?`<tr><td>জরিমানা</td><td style="text-align:right;">৳${fineTotal}</td></tr>`:''}
+        <tr><td>মোট পেমেন্ট (${pays.length}টি)</td><td style="text-align:right;">৳${totalPaid}</td></tr>
+      </table>
+      <div class="r-amount">${bal>=0?'জমা আছে: ':'বাকি আছে: '}${fmtMoney(Math.abs(bal))}</div>
       <div class="r-footer">অটোমেটিক তৈরি — Smart Meal Manager</div>
     </body></html>`);
   w.document.close();
@@ -2072,7 +2404,7 @@ function filterBazar(){
     </tr>`).join('')}</tbody></table></div>
     <div class="total-row" style="margin-top:7px"><span>মোট:</span><span>${fmtMoney(total)}</span></div>`;
 }
-async function deleteBazar(id){ if(!(await showConfirm('মুছবেন?'))) return; const b=DB.bazars.find(x=>x.id===id); DB.bazars=DB.bazars.filter(b=>b.id!==id); save(); filterBazar(); if(b) logActivity(`🗑️ বাজার এন্ট্রি মুছে ফেলা হয়েছে: ৳${b.amount}`); }
+async function deleteBazar(id){ if(!(await showConfirm('মুছবেন?'))) return; const b=DB.bazars.find(x=>x.id===id); if(b) moveToTrash('bazar',b); DB.bazars=DB.bazars.filter(b=>b.id!==id); save(); filterBazar(); if(b) logActivity(`🗑️ বাজার এন্ট্রি মুছে ফেলা হয়েছে (ট্র্যাশে গেছে): ৳${b.amount}`); }
 
 function openBazarImage(id){
   const b = DB.bazars.find(x=>x.id===id);
@@ -2116,6 +2448,7 @@ function filterExpenses(){
   let list=month?DB.expenses.filter(e=>e.date&&e.date.startsWith(month)):DB.expenses;
   list=list.sort((a,b)=>b.date.localeCompare(a.date));
   const total=list.reduce((s,e)=>s+(e.amount||0),0);
+  renderExpensePieChart(month);
   if(!list.length){ document.getElementById('expense-list').innerHTML='<div class="empty-state"><div class="icon">💡</div><p>কোনো খরচ নেই</p></div>'; return; }
   document.getElementById('expense-list').innerHTML=`<div class="table-wrap"><table>
     <thead><tr><th>তারিখ</th><th>ধরন</th><th>পরিমাণ</th><th>বিবরণ</th><th></th></tr></thead>
@@ -2126,7 +2459,39 @@ function filterExpenses(){
     </tr>`).join('')}</tbody></table></div>
     <div class="total-row" style="margin-top:7px"><span>মোট:</span><span>${fmtMoney(total)}</span></div>`;
 }
-async function deleteExpense(id){ if(!(await showConfirm('মুছবেন?'))) return; const ex=DB.expenses.find(x=>x.id===id); DB.expenses=DB.expenses.filter(e=>e.id!==id); save(); filterExpenses(); if(ex) logActivity(`🗑️ খরচ মুছে ফেলা হয়েছে: ${ex.type} — ৳${ex.amount}`); }
+
+function renderExpensePieChart(month){
+  const el=document.getElementById('expense-pie-chart');
+  if(!el) return;
+  const bazarTotal=DB.bazars.filter(b=>month?(b.date&&b.date.startsWith(month)):true).reduce((s,b)=>s+(b.amount||0),0);
+  const byType={};
+  if(bazarTotal>0) byType['🛒 বাজার']=bazarTotal;
+  DB.expenses.filter(e=>month?(e.date&&e.date.startsWith(month)):true).forEach(e=>{ byType[e.type]=(byType[e.type]||0)+(e.amount||0); });
+  const entries=Object.entries(byType).filter(([,v])=>v>0);
+  const grand=entries.reduce((s,[,v])=>s+v,0);
+  if(!grand){ el.innerHTML='<div class="empty-state"><div class="icon">📊</div><p>এই মাসে কোনো খরচ/বাজার নেই</p></div>'; return; }
+  const colors=['var(--green)','var(--blue)','var(--amber)','var(--pink)','var(--red)','#8B5CF6','#0EA5E9','#F97316'];
+  let acc=0;
+  const gradientParts=entries.map(([type,val],i)=>{
+    const startPct=(acc/grand)*100;
+    acc+=val;
+    const endPct=(acc/grand)*100;
+    return `${colors[i%colors.length]} ${startPct}% ${endPct}%`;
+  });
+  const conic=`conic-gradient(${gradientParts.join(', ')})`;
+  const legend=entries.map(([type,val],i)=>{
+    const pct=Math.round((val/grand)*100);
+    return `<div style="display:flex;align-items:center;gap:7px;font-size:0.8rem;padding:4px 0;">
+      <span style="width:12px;height:12px;border-radius:3px;background:${colors[i%colors.length]};flex-shrink:0;display:inline-block;"></span>
+      <span style="flex:1;">${type}</span><strong>৳${val} (${pct}%)</strong>
+    </div>`;
+  }).join('');
+  el.innerHTML=`<div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
+    <div style="width:130px;height:130px;border-radius:50%;background:${conic};flex-shrink:0;box-shadow:0 2px 10px rgba(0,0,0,0.15);"></div>
+    <div style="flex:1;min-width:160px;">${legend}<div style="border-top:1px solid var(--gray-border);margin-top:6px;padding-top:6px;font-weight:700;">মোট: ৳${grand}</div></div>
+  </div>`;
+}
+async function deleteExpense(id){ if(!(await showConfirm('মুছবেন?'))) return; const ex=DB.expenses.find(x=>x.id===id); if(ex) moveToTrash('expense',ex); DB.expenses=DB.expenses.filter(e=>e.id!==id); save(); filterExpenses(); if(ex) logActivity(`🗑️ খরচ মুছে ফেলা হয়েছে (ট্র্যাশে গেছে): ${ex.type} — ৳${ex.amount}`); }
 
 function searchBlMember(){
   const q=document.getElementById('bl-search').value.toLowerCase();
@@ -2351,7 +2716,7 @@ function filterBalanceReport(){
     balHtml+=`<div style="margin-bottom:14px;">
       <div style="font-weight:700;background:var(--green);color:white;padding:6px 12px;border-radius:6px 6px 0 0;">${floorBn(f)}</div>
       <div class="table-wrap"><table>
-        <thead><tr><th>নাম</th><th>রুম</th><th>পেমেন্ট</th><th>মিল অন</th><th>গেস্ট</th><th>ব্যালেন্স</th></tr></thead>
+        <thead><tr><th>নাম</th><th>রুম</th><th>পেমেন্ট</th><th>মিল অন</th><th>গেস্ট</th><th>ব্যালেন্স</th><th></th></tr></thead>
         <tbody>${fm.map(m=>{
           const paid=DB.payments.filter(p=>p.memberId===m.id&&p.date&&p.date.startsWith(month)).reduce((s,p)=>s+(p.amount||0),0);
           let onC=0,guestC=0;
@@ -2364,7 +2729,8 @@ function filterBalanceReport(){
             <td><span class="badge badge-green">৳${paid}</span></td>
             <td><span class="badge badge-green">${onC}টি</span></td>
             <td><span class="badge badge-pink">${guestC}টি</span></td>
-            <td><span class="badge ${bal>=0?'badge-green':'badge-red'}">${fmtMoney(bal)}</span></td></tr>`;
+            <td><span class="badge ${bal>=0?'badge-green':'badge-red'}">${fmtMoney(bal)}</span></td>
+            <td><button class="btn btn-blue btn-sm" onclick="printMonthlyInvoice(${m.id},'${month}')">🖨️</button></td></tr>`;
         }).join('')}</tbody>
       </table></div></div>`;
   });
@@ -2472,6 +2838,8 @@ function getMealStatusFor(data, date, memberId){
 }
 
 function getMemberBalanceFor(data, memberId){
+  const mm = (data.members||[]).find(x=>x.id===memberId);
+  const opening = (mm && mm.openingBalance) || 0;
   const paid = (data.payments||[]).filter(p=>p.memberId===memberId).reduce((s,p)=>s+(p.amount||0),0);
   let charges = 0;
   (data.submittedDays||[]).forEach(date=>{
@@ -2482,7 +2850,7 @@ function getMemberBalanceFor(data, memberId){
   });
   // জরিমানাও চার্জে যোগ (শুধু সদস্যদের, custom নয়)
   const fineTotal = (data.fines||[]).filter(f=>f.memberId===memberId && !f.isCustom).reduce((s,f)=>s+(f.amount||0),0);
-  return paid - charges - fineTotal;
+  return opening + paid - charges - fineTotal;
 }
 
 function fmtMonthKey(monthKey){
@@ -2845,9 +3213,10 @@ function filterJorimana(){
 async function deleteJorimana(id){
   if(!(await showConfirm('এই জরিমানা মুছবেন?'))) return;
   const fn=DB.fines.find(x=>x.id===id);
+  if(fn) moveToTrash('fine',fn);
   DB.fines=DB.fines.filter(f=>f.id!==id);
   save(); filterJorimana();
-  if(fn) logActivity(`🗑️ জরিমানা মুছে ফেলা হয়েছে: ${fn.memberName} — ৳${fn.amount}`);
+  if(fn) logActivity(`🗑️ জরিমানা মুছে ফেলা হয়েছে (ট্র্যাশে গেছে): ${fn.memberName} — ৳${fn.amount}`);
 }
 
 // ============================================================
@@ -2914,6 +3283,7 @@ async function importBackup(input){
       if(!DB.activityLog) DB.activityLog=[];
       if(!DB.backupReminderDays) DB.backupReminderDays=3;
       if(!DB.dayRates) DB.dayRates={};
+      if(!DB.trash) DB.trash=[];
       if(DB.pinEnabled===undefined) DB.pinEnabled=false;
       if(DB.mealRate) MEAL_RATE=DB.mealRate;
       DB.members.forEach(m => {
